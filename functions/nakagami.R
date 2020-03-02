@@ -1,0 +1,52 @@
+#' Function that returns the censored Nakagami log-likelihood
+#' 
+#'  Input: Batches, cut-off
+#'  Output: Value of each pair
+
+censored_nakagami <- function(model,z_batch, d_batch, cut_off, number_of_interpolants = 10, samples = 15){
+  #' Input: z_batch is Nx2x(latent dim) (list of endpoints)
+  #' d_batch is Nx1
+  #' cutoff is the threshold value
+  
+  #' Define uncensored and censored functions
+  uncensored <- function(z,d){
+    L <- arc_length(model, z,
+                    number_of_interpolants = number_of_interpolants, samples = samples)
+    m <- L$m; O <- L$O;
+    res <- nakagami_pdf(d,m,O)
+    return(res)
+  }
+  censored <- function(z,d){
+    L <- arc_length(model, z,
+                    number_of_interpolants = number_of_interpolants, samples = samples)
+    m <- L$m; O <- L$O;
+    res <- 1 - nakagami_cdf(d,m,O) #Tail probability
+    return(res)
+  }
+  
+  #' Function based on condition
+  censored_llh <- function(z_and_d){
+    z <- tf$transpose(z_and_d[[1]]); d <- tf$squeeze(z_and_d[[2]])
+    res <- tf$cond( obs_d == cutoff,
+             true_fn = censored(obs_z,obs_d),
+             false_fn = uncensored(obs_z,obs_d))
+    return(res)
+  }
+  
+  #' Compute for each element
+  out <- tf$map_fn(censored_llh, c(z,d)) # Holds likelihood value on each batch element
+  return(out)
+} 
+
+nakagami_pdf <- function(x,m,O){
+  sig <- O / m # Reparametrize
+  res <- - tf$lgamma(m) - m * tf$log(sig) + (2*m - 1) * tf$log(x) - tf$square(x) / sig 
+  return(res)
+  # Returns log-pdf
+}
+
+nakagami_cdf <- function(x,m,O){
+  res <- tf$log( tf$math$igamma(m, (m / O) * x^2) )
+  return(res)
+  # Return log-cdf
+}
