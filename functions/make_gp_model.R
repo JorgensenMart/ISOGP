@@ -1,9 +1,12 @@
 make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NULL, v_par = v_par, num_inducing, 
                           likelihood = "Gaussian", in_dim, out_dim = 1, 
-                          is.WP = FALSE, wis_factor = NULL, deg_free = NULL, constrain_deg_free = FALSE, restrict_L = TRUE){
+                          is.WP = FALSE, wis_factor = NULL, deg_free = NULL, constrain_deg_free = FALSE, restrict_L = TRUE,
+                          variational_is_diag = FALSE){
   model <- list()
   model$likelihood = likelihood
-  model$kern$is.RBF = FALSE; model$kern$is.lin = FALSE; model$kern$is.polynomial = FALSE; model$kern$is.ARD = FALSE
+  model$kern$is.RBF = FALSE; model$kern$is.lin = FALSE; 
+  model$kern$is.polynomial = FALSE; model$kern$is.ARD = FALSE;
+  model$kern$is.white = FALSE;
   if(missing(mf)){
     model$mf = function(s){
       a <- tf$zeros_like(s, dtype = tf$float32)
@@ -64,8 +67,13 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
     model$kern$polynomial$b = tf$Variable(tf$ones(shape()))
     model$kern$polynomial$eps = tf$Variable(log(exp(0.01)-1))
   }
+  if(kern.type == "white"){
+    model$kern$is.white = TRUE
+    model$kern$white$noise = tf$Variable(tf$ones(shape()))
+  }
   
   # v_par
+  model$variational_is_diag = variational_is_diag # Make full implementation
   if(missing(num_inducing)){
     model$v_par = NULL
   }
@@ -96,6 +104,9 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
       model$v_par$mu = tf$Variable(matrix(rep(0,num_inducing*out_dim),nrow = num_inducing), shape(c(num_inducing,out_dim)), dtype = tf$float32)
       model$v_par$chol <- tf$Variable(float_32(tf$contrib$distributions$fill_triangular_inverse(tf$eye(as.integer(model$v_par$num_inducing), 
                                                                                                        batch_shape = c(int_32(out_dim))))))
+      if(variational_is_diag == TRUE){
+        model$v_par$chol <- tf$Variable(matrix(rep(1,num_inducing*out_dim), nrow = out_dim), dtype = tf$float32)
+      }
     } 
   }
   return(model)

@@ -3,7 +3,7 @@
 #'  Input: Batches, cut-off
 #'  Output: Value of each pair
 
-censored_nakagami <- function(model,z_batch, d_batch, cut_off, number_of_interpolants = 10, samples = 15){
+censored_nakagami <- function(model,z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 15){
   #' Input: z_batch is Nx2x(latent dim) (list of endpoints)
   #' d_batch is Nx1
   #' cutoff is the threshold value
@@ -27,14 +27,14 @@ censored_nakagami <- function(model,z_batch, d_batch, cut_off, number_of_interpo
   #' Function based on condition
   censored_llh <- function(z_and_d){
     z <- tf$transpose(z_and_d[[1]]); d <- tf$squeeze(z_and_d[[2]])
-    res <- tf$cond( obs_d == cutoff,
-             true_fn = censored(obs_z,obs_d),
-             false_fn = uncensored(obs_z,obs_d))
+    res <- tf$cond( d == cut_off,
+             true_fn = function(){return(censored(z,d))},
+             false_fn = function(){return(uncensored(z,d))} ) # Making it callable
     return(res)
   }
   
   #' Compute for each element
-  out <- tf$map_fn(censored_llh, c(z,d)) # Holds likelihood value on each batch element
+  out <- tf$map_fn(censored_llh, c(z_batch,dist_batch), dtype = tf$float32) # Holds likelihood value on each batch element
   return(out)
 } 
 

@@ -9,7 +9,7 @@ compute_kl <- function(model, K_q = NULL){
     C_MM <- K_q$Kmmchol
   }
   
-  A_sq <- get_chol(model$v_par$chol); # DxMxM or DxNUxMxM
+  A_sq <- get_chol(model$v_par$chol, model$variational_is_diag); # DxMxM or DxNUxMxM
   
   q_mu <- model$v_par$mu; #MxD or MxDxNU
   #p_mu <- float_32(model$mf(z)) ## ONLY IMPLEMENTED WITH ZERO MEAN FOR NOW

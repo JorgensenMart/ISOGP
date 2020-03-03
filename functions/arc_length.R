@@ -16,6 +16,7 @@ arc_length <- function(model, z_end, number_of_interpolants = 10, samples = 15){
     out <- tf$norm(out, axis = as.integer(c(-2,-1))) # Euclidean norm
     out <- 1 / number_of_interpolants * out # Assuming equidistant interpolants
     out <- tf$reduce_sum(out, axis = as.integer(1)) # Size: Samples
+    return(out)
   }
   
   out <- numeric_integrator(js,zs)

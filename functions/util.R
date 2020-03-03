@@ -31,9 +31,13 @@ nearest_neighbor <- function(data,query){
   # Returns the index of the nearest neighbor
 }
 
-get_chol <- function(vec){
+get_chol <- function(vec, is_diagonal = FALSE){
   # make a vector into lower-triangular matrix
-  L <- tf$contrib$distributions$fill_triangular(vec)
+  if(is_diagonal == FALSE){
+    L <- tf$contrib$distributions$fill_triangular(vec)
+  } else{
+    L <- tf$matrix_diag(vec)
+  }
   return(L)
 }
 
@@ -90,9 +94,9 @@ init_inducing <- function(train_data, num_inducing){
 seq_d <- function(z_end, number_of_interpolants){
   #' z_end is 2xd
   #' Returns a number-of-interpolants x d matrix
-  
+  dim <- z_end$get_shape()$as_list()[2]
   s <- seq(0,1, length.out = number_of_interpolants + 1 )
-  zerotoone <- matrix(rep( seq(0,1,length.out = number_of_interpolants+1 ), d ), ncol = d)
+  zerotoone <- matrix(rep( seq(0,1,length.out = number_of_interpolants+1 ), dim ), ncol = dim)
   diff <- z_end[2,] - z_end[1,]
   zs <- z_end[1,] + tf$multiply(diff, tf$constant(zerotoone, dtype = tf$float32))
   return(zs) 
