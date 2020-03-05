@@ -28,7 +28,7 @@ build_kernel_matrix <- function(model,z1,z2,equals = FALSE, only_diag = FALSE){
     if(model$kern$is.white){
       equals = TRUE # NOTE WHITE NOISE IS ONLY IMPLEMENTED FOR EQUAL
       sig <- model$kern$white$noise
-      K <- sig * tf$eye(z1$get_shape()$as_list()[1])#, num_rows = as.integer(10))
+      K <- sig * tf$eye(z1$get_shape()$as_list()[1])
     }
   } else{
     if(model$kern$is.RBF){
@@ -59,7 +59,7 @@ build_kernel_matrix <- function(model,z1,z2,equals = FALSE, only_diag = FALSE){
     if(model$kern$is.white){
       equals = TRUE # NOTE WHITE NOISE IS ONLY IMPLEMENTED FOR EQUAL
       sig <- model$kern$white$noise
-      K <- sig * tf$eye(z1$get_shape()$as_list()[1])#, num_rows = as.integer(10))
+      K <- sig * tf$eye(z1$get_shape()$as_list()[1])
     }
   }
   return(K)

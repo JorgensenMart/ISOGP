@@ -10,10 +10,12 @@ m <- 100 # Number of inducing points
 D <- 3 # Ambient dimension / data dimension
 d <- 2 # Latent dimension
 
-z <- matrix(rnorm(N*d,0,1), ncol = d) # Initial value of latent points
 
-A <- as.matrix(dist(swissroll))
+A <- as.matrix(dist(scale(swissroll))) # Not scaled
 
+#z <- matrix(rnorm(N*d,0,1), ncol = d) # Initial value of latent points
+z <- cmdscale(A, k = d) # Makes a swirl (sub-optimal ?)
+z <- scale(z)
 cut_off <- median(A) # A bad choice
 
 #' R is the distance matrix with the censored values replaced with the cutoff 
@@ -27,6 +29,9 @@ model <- make_gp_model(kern.type = "ARD",
                        in_dim = d, out_dim = D,
                        is.WP = TRUE, deg_free = d) # Should be unconstrained Wishart to generate Dxd matrices
 
+model$kern$ARD$ls <- tf$Variable(rep(log(exp(20)-1),d))
+model$kern$ARD$var <- tf$Variable(0.1, constraint = constrain_pos)
+
 latents <- make_gp_model(kern.type = "white",
                                      input = z,
                                      num_inducing = N,
@@ -36,15 +41,17 @@ latents <- make_gp_model(kern.type = "white",
 
 latents$kern$white$noise <- tf$constant(1, dtype = tf$float32) # GP hyperparameter is not variable here
 latents$v_par$v_x <- tf$Variable(z, dtype = tf$float32) # Latents to be marginalized
-
+latents$v_par$mu <- tf$Variable(z, dtype = tf$float32)
+latents$v_par$chol <- 1e-4 *latents$v_par$chol
 # Make smarter inizialization of z
 
 p <- 50 # Number of points in batch
 
-I_batch <- tf$placeholder(dtype = tf$int32, shape = as.integer(c(p*(p-1)/2,2))) #Nx2
+I_batch <- tf$placeholder(dtype = tf$int32, shape = as.integer(c(p*(p-1)/2,2))) #{p(p-1)/2}x2
 
 z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1))) +
-              tf$transpose(tf$gather(tf$transpose(latents$v_par$chol), I_batch), as.integer(c(0,2,1))) * tf$random_normal(as.integer(c(p*(p-1)/2,2,d)))
+              tf$transpose(tf$gather(tf$transpose(latents$v_par$chol), I_batch), as.integer(c(0,2,1))) * 
+                tf$random_normal(as.integer(c(p*(p-1)/2,2,d)))
 # z_batch is (mini-batch) sampled from q(z)
 
 dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
@@ -53,7 +60,7 @@ dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
 trainer <- tf$train$AdamOptimizer(learning_rate = 0.01)
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 15)
-loss <- tf$reduce_mean(driver) # Add KL terms
+loss <- tf$reduce_mean(driver) # - compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
 optimizer <- trainer$minimize(-loss)
 
 #' Initialize session
@@ -62,11 +69,18 @@ session$run(tf$global_variables_initializer())
 
 #' Training
 
-iterations <- 100
+iterations <- 5000
 
+J <- sample(N, p, replace = FALSE) - 1 # Validation batch
+test_batch <- dict(I_batch = batch_to_pairs(J))
 for(i in 1:iterations){
   I <- sample(N, p, replace = FALSE) - 1 # Index of selected points in sample (tensorflow uses 0-indexing)
   batch_dict <- dict(I_batch = batch_to_pairs(I))
   session$run(optimizer, feed_dict = batch_dict)
-  print(i)
+  if(i %% 5 == 0){
+    print(session$run(loss, feed_dict = test_batch))
+    #plot(session$run(latents$v_par$mu, feed_dict = batch_dict))
+  }
 }
+
+saver$save(session, "my_init_model")

@@ -4,7 +4,7 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
                           variational_is_diag = FALSE){
   model <- list()
   model$likelihood = likelihood
-  model$kern$is.RBF = FALSE; model$kern$is.lin = FALSE; 
+  model$kern$is.RBF = FALSE; model$kern$is.lin = FALSE;
   model$kern$is.polynomial = FALSE; model$kern$is.ARD = FALSE;
   model$kern$is.white = FALSE;
   if(missing(mf)){
@@ -69,7 +69,7 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
   }
   if(kern.type == "white"){
     model$kern$is.white = TRUE
-    model$kern$white$noise = tf$Variable(tf$ones(shape()))
+    model$kern$white$noise = tf$Variable(tf$ones(shape()), constraint = constrain_pos)
   }
   
   # v_par
@@ -105,7 +105,7 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
       model$v_par$chol <- tf$Variable(float_32(tf$contrib$distributions$fill_triangular_inverse(tf$eye(as.integer(model$v_par$num_inducing), 
                                                                                                        batch_shape = c(int_32(out_dim))))))
       if(variational_is_diag == TRUE){
-        model$v_par$chol <- tf$Variable(matrix(rep(1,num_inducing*out_dim), nrow = out_dim), dtype = tf$float32)
+        model$v_par$chol <- tf$Variable(matrix(rep(1,num_inducing*out_dim), nrow = out_dim), dtype = tf$float32, constraint = constrain_pos)
       }
     } 
   }

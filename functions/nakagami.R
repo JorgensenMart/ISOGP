@@ -20,7 +20,7 @@ censored_nakagami <- function(model,z_batch, dist_batch, cut_off, number_of_inte
     L <- arc_length(model, z,
                     number_of_interpolants = number_of_interpolants, samples = samples)
     m <- L$m; O <- L$O;
-    res <- 1 - nakagami_cdf(d,m,O) #Tail probability
+    res <- nakagami_cdf(d,m,O) #Tail probability # cdf is tail
     return(res)
   }
   
@@ -46,7 +46,8 @@ nakagami_pdf <- function(x,m,O){
 }
 
 nakagami_cdf <- function(x,m,O){
-  res <- tf$log( tf$math$igamma(m, (m / O) * x^2) )
+  #res <- tf$log( 1 - tf$math$igamma(m, (m / O) * x^2) )
+  res <- tf$log( 1 - tf$math$igamma(m, (m / O) * x^2) + 1e-10)
   return(res)
   # Return log-cdf
 }
