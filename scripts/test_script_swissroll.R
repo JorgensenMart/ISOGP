@@ -11,17 +11,25 @@ D <- 3 # Ambient dimension / data dimension
 d <- 2 # Latent dimension
 
 
-A <- as.matrix(dist(scale(swissroll))) # Not scaled
+A <- as.matrix(dist(scale(swissroll))) 
+swiss <- scale(swissroll)
+
+B <- svd(t(swiss) %*% swiss)
+W <- B$u[,1:d] # "Jacobian"
+z <- swiss %*% B$u[,1:d] # PCA latents
+# Scaling of A should also depend on dimensions, for comparisions with z
 
 #z <- matrix(rnorm(N*d,0,1), ncol = d) # Initial value of latent points
-z <- cmdscale(A, k = d) # Makes a swirl (sub-optimal ?)
-z <- scale(z)
-cut_off <- median(A) # A bad choice
+#z <- cmdscale(A, k = d) # Makes a swirl (sub-optimal ?)
+#z <- scale(z)
+cut_off <- 1.07 # Seems like a good choice (based on TDA)
+# Should be more automated
 
 #' R is the distance matrix with the censored values replaced with the cutoff 
 R <- matrix(rep(1,N^2), ncol = N)
 R[which(A < cut_off, arr.ind = TRUE)] <- A[which(A < cut_off, arr.ind = TRUE)]
 R[which(A >= cut_off, arr.ind = TRUE)] <- cut_off * R[which(A >= cut_off, arr.ind = TRUE)]
+
 
 model <- make_gp_model(kern.type = "ARD",
                        input = z,
@@ -29,8 +37,14 @@ model <- make_gp_model(kern.type = "ARD",
                        in_dim = d, out_dim = D,
                        is.WP = TRUE, deg_free = d) # Should be unconstrained Wishart to generate Dxd matrices
 
-model$kern$ARD$ls <- tf$Variable(rep(log(exp(20)-1),d))
+model$kern$ARD$ls <- tf$Variable(rep(log(exp(5)-1),d))
 model$kern$ARD$var <- tf$Variable(0.1, constraint = constrain_pos)
+
+model$v_par$mu <- tf$Variable(aperm(array(rep(W,m), c(D,d,m)), perm = c(3,1,2)), dtype = tf$float32)
+rm(A) # Remove A from memory
+rm(W)
+rm(swiss)
+rm(swissroll)
 
 latents <- make_gp_model(kern.type = "white",
                                      input = z,
@@ -69,7 +83,7 @@ session$run(tf$global_variables_initializer())
 
 #' Training
 
-iterations <- 5000
+iterations <- 2000
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
@@ -83,4 +97,5 @@ for(i in 1:iterations){
   }
 }
 
-saver$save(session, "my_init_model")
+saver <- tf$train$Saver()
+saver$save(session, "my_model")
