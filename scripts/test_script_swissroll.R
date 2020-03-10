@@ -11,7 +11,7 @@ D <- 3 # Ambient dimension / data dimension
 d <- 2 # Latent dimension
 
 
-A <- as.matrix(dist(scale(swissroll))) 
+A <- as.matrix(dist(scale(swissroll)))
 swiss <- scale(swissroll)
 
 B <- svd(t(swiss) %*% swiss)
@@ -74,7 +74,7 @@ dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
 trainer <- tf$train$AdamOptimizer(learning_rate = 0.01)
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 15)
-loss <- tf$reduce_mean(driver) # - compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
+loss <- tf$reduce_mean(driver)  - compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
 optimizer <- trainer$minimize(-loss)
 
 #' Initialize session
