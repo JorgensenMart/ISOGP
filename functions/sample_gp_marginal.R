@@ -45,7 +45,7 @@ sample_gp_marginal <- function(model, x_batch, samples  = 1, K_q = NULL, K_MN = 
       jitter = 1e-5
       chol <- tf$cholesky(var + jitter*tf$eye(mu$get_shape()$as_list()[1], dtype = tf$float32)) # DxNUxNxN
       chol <- tf$tile(chol[NULL,,,,], as.integer(c(samples,1,1,1,1))) # SxDxNUxNxN
-      out <- tf$matmul(chol,w, a_is_sparse = TRUE) # SxDxNUxNx1
+      out <- tf$matmul(chol,w) # SxDxNUxNx1
       out <- mu + tf$transpose(out, as.integer(c(0,3,1,2,4)))[,,,,1] #SxNxDxNU
     }
     else if(model$is.WP == TRUE && model$constrain_deg_free == TRUE){
@@ -61,7 +61,7 @@ sample_gp_marginal <- function(model, x_batch, samples  = 1, K_q = NULL, K_MN = 
       jitter = 1e-5
       chol <- tf$cholesky(var + jitter*tf$eye(mu$get_shape()$as_list()[1], dtype = tf$float32)) # DxNUxNxN
       chol <- tf$tile(chol[NULL,,,,], as.integer(c(samples,1,1,1,1))) # SxDxNUxNxN
-      out <- tf$matmul(chol,w, a_is_sparse = TRUE) # SxDxNUxNx1
+      out <- tf$matmul(chol,w) # SxDxNUxNx1
       out <- mu + tf$transpose(out, as.integer(c(0,3,1,2,4)))[,,,,1] #SxNxDxNU
     }
     else{
@@ -74,7 +74,7 @@ sample_gp_marginal <- function(model, x_batch, samples  = 1, K_q = NULL, K_MN = 
       jitter = 1e-5
       chol <- tf$cholesky(var + jitter*tf$eye(mu$get_shape()$as_list()[1], dtype = tf$float32)) # DxNxN
       chol <- tf$tile(chol[NULL,,,], as.integer(c(samples,1,1,1))) # SxDxNxN
-      out <- tf$matmul(chol,w, a_is_sparse = TRUE) # SxDxNx1
+      out <- tf$matmul(chol,w) # SxDxNx1
       out <- mu + tf$transpose(out, as.integer(c(0,2,1,3)))[,,,1] #SxNxD
     }
   }
