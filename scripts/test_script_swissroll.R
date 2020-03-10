@@ -37,10 +37,12 @@ model <- make_gp_model(kern.type = "ARD",
                        in_dim = d, out_dim = D,
                        is.WP = TRUE, deg_free = d) # Should be unconstrained Wishart to generate Dxd matrices
 
-model$kern$ARD$ls <- tf$Variable(rep(log(exp(5)-1),d))
-model$kern$ARD$var <- tf$Variable(0.1, constraint = constrain_pos)
+model$kern$ARD$ls <- tf$Variable(rep(log(exp(2)-1),d))
+model$kern$ARD$var <- tf$Variable(0.2, constraint = constrain_pos)
 
 model$v_par$mu <- tf$Variable(aperm(array(rep(W,m), c(D,d,m)), perm = c(3,1,2)), dtype = tf$float32)
+model$v_par$chol <- sqrt(0.2)*model$v_par$chol
+
 rm(A) # Remove A from memory
 rm(W)
 rm(swiss)
@@ -54,7 +56,7 @@ latents <- make_gp_model(kern.type = "white",
 
 
 latents$kern$white$noise <- tf$constant(1, dtype = tf$float32) # GP hyperparameter is not variable here
-latents$v_par$v_x <- tf$Variable(z, dtype = tf$float32) # Latents to be marginalized
+#latents$v_par$v_x <- tf$Variable(z, dtype = tf$float32) # Latents to be marginalized
 latents$v_par$mu <- tf$Variable(z, dtype = tf$float32)
 latents$v_par$chol <- 1e-4 *latents$v_par$chol
 # Make smarter inizialization of z
@@ -74,7 +76,7 @@ dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
 trainer <- tf$train$AdamOptimizer(learning_rate = 0.01)
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 15)
-loss <- tf$reduce_mean(driver)  - compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
+loss <- tf$reduce_mean(driver) - compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
 optimizer <- trainer$minimize(-loss)
 
 #' Initialize session
@@ -93,6 +95,7 @@ for(i in 1:iterations){
   session$run(optimizer, feed_dict = batch_dict)
   if(i %% 5 == 0){
     print(session$run(loss, feed_dict = test_batch))
+    print(session$run(model$kern$ARD, feed_dict = test_batch))
     #plot(session$run(latents$v_par$mu, feed_dict = batch_dict))
   }
 }
