@@ -22,7 +22,7 @@ z <- x %*% B$u[,1:d] # PCA latents
 #z <- matrix(rnorm(N*d,0,1), ncol = d) # Initial value of latent points
 #z <- cmdscale(A, k = d) # Makes a swirl (sub-optimal ?)
 #z <- scale(z)
-cut_off <- 10 # Seems like a good choice (based on TDA)
+cut_off <- 1.07 # Seems like a good choice (based on TDA)
 # Should be more automated
 
 #' R is the distance matrix with the censored values replaced with the cutoff 
