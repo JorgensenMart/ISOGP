@@ -95,7 +95,8 @@ for(i in 1:iterations){
   session$run(optimizer, feed_dict = batch_dict)
   if(i %% 10 == 0){
     print(session$run(loss, feed_dict = test_batch))
-    #print(session$run(model$kern$ARD, feed_dict = test_batch))
+    print(session$run(model$kern$ARD, feed_dict = test_batch))
+    print(session$run(latents$v_par$mu, feed_dict = test_batch))
     #print(session$run(driver, feed_dict = test_batch))
     #plot(session$run(latents$v_par$mu, feed_dict = batch_dict))
   }
