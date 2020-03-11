@@ -26,7 +26,7 @@ censored_nakagami <- function(model,z_batch, dist_batch, cut_off, number_of_inte
   
   #' Function based on condition
   censored_llh <- function(z_and_d){
-    z <- tf$transpose(z_and_d[[1]]); d <- tf$squeeze(z_and_d[[2]])
+    z <- z_and_d[[1]]; d <- tf$squeeze(z_and_d[[2]])
     res <- tf$cond( d == cut_off,
              true_fn = function(){return(censored(z,d))},
              false_fn = function(){return(uncensored(z,d))} ) # Making it callable
