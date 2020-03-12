@@ -45,7 +45,6 @@ model$v_par$chol <- sqrt(0.2)*model$v_par$chol
 
 rm(A) # Remove A from memory
 rm(W)
-rm(swiss)
 rm(swissroll)
 
 latents <- make_gp_model(kern.type = "white",
@@ -63,11 +62,12 @@ latents$v_par$chol <- 1e-4 *latents$v_par$chol
 
 p <- 50 # Number of points in batch
 
-I_batch <- tf$placeholder(dtype = tf$int32, shape = as.integer(c(p*(p-1)/2,2))) #{p(p-1)/2}x2
+#I_batch <- tf$placeholder(dtype = tf$int32, shape = as.integer(c(p*(p-1)/2,2))) #{p(p-1)/2}x2
+I_batch <- tf$placeholder(tf$int32, shape(NULL,2L))
 
 z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1))) +
               tf$transpose(tf$gather(tf$transpose(latents$v_par$chol), I_batch), as.integer(c(0,2,1))) * 
-                tf$random_normal(as.integer(c(p*(p-1)/2,2,d)))
+                tf$random_normal(tf$shape(tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1)))))
 # z_batch is (mini-batch) sampled from q(z)
 
 dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
@@ -89,8 +89,10 @@ iterations <- 2000
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
+idx <- kNN_for_each(swiss, k = 10)
 for(i in 1:iterations){
-  I <- sample(N, p, replace = FALSE) - 1 # Index of selected points in sample (tensorflow uses 0-indexing)
+  #I <- sample(N, p, replace = FALSE) - 1 # Index of selected points in sample (tensorflow uses 0-indexing)
+  I <- local_sampler(idx, psu = 10, ssu = 5)
   batch_dict <- dict(I_batch = batch_to_pairs(I))
   session$run(optimizer, feed_dict = batch_dict)
   if(i %% 10 == 0){
