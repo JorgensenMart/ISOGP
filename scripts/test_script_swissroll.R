@@ -95,10 +95,11 @@ for(i in 1:iterations){
   I <- local_sampler(idx, psu = 10, ssu = 5)
   batch_dict <- dict(I_batch = batch_to_pairs(I))
   session$run(optimizer, feed_dict = batch_dict)
+  print(I)
   if(i %% 10 == 0){
     print(session$run(loss, feed_dict = test_batch))
     #print(session$run(model$kern$ARD, feed_dict = test_batch))
-    print(session$run(latents$v_par$mu, feed_dict = test_batch))
+    #print(session$run(latents$v_par$mu, feed_dict = test_batch))
     #print(session$run(driver, feed_dict = test_batch))
     #plot(session$run(latents$v_par$mu, feed_dict = batch_dict))
   }
