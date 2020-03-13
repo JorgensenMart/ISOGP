@@ -91,8 +91,8 @@ J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
 idx <- kNN_for_each(swiss, k = 6)
 for(i in 1:iterations){
-  #I <- sample(N, p, replace = FALSE) - 1 # Index of selected points in sample (tensorflow uses 0-indexing)
-  I <- local_sampler(idx, psu = 15, ssu = 3)
+  I <- sample(N, p, replace = FALSE) - 1 # Index of selected points in sample (tensorflow uses 0-indexing)
+  #I <- local_sampler(idx, psu = 15, ssu = 3)
   batch_dict <- dict(I_batch = batch_to_pairs(I))
   session$run(optimizer, feed_dict = batch_dict)
   #print(session$run(model$v_par$v_x))
