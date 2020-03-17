@@ -85,7 +85,7 @@ session$run(tf$global_variables_initializer())
 
 iterations <- 2500
 
-J <- sample(N, p, replace = FALSE) - 1 # Validation batch
+J <- sample(N, 100, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
 idx <- kNN_for_each(swiss, k = 6)
 for(i in 1:iterations){
