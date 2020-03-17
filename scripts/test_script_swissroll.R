@@ -60,8 +60,6 @@ latents$v_par$mu <- tf$Variable(z, dtype = tf$float32)
 latents$v_par$chol <- 1e-4 *latents$v_par$chol
 # Make smarter inizialization of z
 
-p <- 50 # Number of points in batch
-
 #I_batch <- tf$placeholder(dtype = tf$int32, shape = as.integer(c(p*(p-1)/2,2))) #{p(p-1)/2}x2
 I_batch <- tf$placeholder(tf$int32, shape(NULL,2L))
 
@@ -73,7 +71,7 @@ z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1
 dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
 # check that batches match reality
 
-trainer <- tf$train$AdamOptimizer(learning_rate = 0.005)
+trainer <- tf$train$AdamOptimizer(learning_rate = 0.001)
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 15)
 loss <- tf$reduce_mean(driver) #- compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
@@ -85,12 +83,15 @@ session$run(tf$global_variables_initializer())
 
 #' Training
 
-iterations <- 2000
+iterations <- 2500
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
 idx <- kNN_for_each(swiss, k = 6)
 for(i in 1:iterations){
+  if(i < 1000){ p <- 50 }
+  else if(i < 2000){ p <- 100 }
+  else{ p <- 300 }
   I <- sample(N, p, replace = FALSE) - 1 # Index of selected points in sample (tensorflow uses 0-indexing)
   #I <- local_sampler(idx, psu = 15, ssu = 3)
   batch_dict <- dict(I_batch = batch_to_pairs(I))
