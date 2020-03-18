@@ -8,6 +8,7 @@ arc_length <- function(model, z_end, number_of_interpolants = 10, samples = 15){
   zs <- seq_d(z_end, number_of_interpolants = number_of_interpolants) # Function in utils
   js <- sample_gp_marginal(model, zs[1:number_of_interpolants,], samples = samples, joint_cov = TRUE) # Is marginals the right thing to do here?
   #' js is SxNxDxd
+  #' # Send along K_MM !
   delta_z <- z_end[2,] - z_end[1,]
   l_z <- tf$norm(delta_z) # Distance between points
   delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(samples,number_of_interpolants,1,1)) ) #SxNxdx1

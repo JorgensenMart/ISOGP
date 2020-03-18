@@ -84,14 +84,12 @@ session$run(tf$global_variables_initializer())
 #' Training
 
 iterations <- 2500
+p <- 100
 
-J <- sample(N, 100, replace = FALSE) - 1 # Validation batch
+J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
 idx <- kNN_for_each(swiss, k = 6)
 for(i in 1:iterations){
-  if(i < 1000){ p <- 50 }
-  else if(i < 2000){ p <- 100 }
-  else{ p <- 300 }
   I <- sample(N, p, replace = FALSE) - 1 # Index of selected points in sample (tensorflow uses 0-indexing)
   #I <- local_sampler(idx, psu = 15, ssu = 3)
   batch_dict <- dict(I_batch = batch_to_pairs(I))

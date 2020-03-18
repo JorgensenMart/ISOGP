@@ -32,7 +32,7 @@ sample_gp_marginal <- function(model, x_batch, samples  = 1, K_q = NULL, K_MN = 
     }
   } else{
     L <- get_mu_and_var(x_batch, model, K_q = K_q, K_MN = K_MN, joint_cov = TRUE)
-    mu <- L$mean; #NxD or NxDxNU 
+    mu <- L$mean; #NxD or NxDxNU
     var <- L$var #DxNxN or DxNUxNxN
     if(length(mu$get_shape()$as_list()) == 3){
       w <- tf$random_normal(shape(samples,
