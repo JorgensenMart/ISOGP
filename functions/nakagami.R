@@ -7,18 +7,21 @@ censored_nakagami <- function(model,z_batch, dist_batch, cut_off, number_of_inte
   #' Input: z_batch is Nx2x(latent dim) (list of endpoints)
   #' d_batch is Nx1
   #' cutoff is the threshold value
-  
+  jitter = 1e-5
+  K_MM <- build_kernel_matrix(model,model$v_par$v_x,model$v_par$v_x,equals = TRUE) + jitter*tf$eye(as.integer(model$v_par$num_inducing))
+  C_MM <- tf$cholesky(K_MM)
+  K_q = list(Kmm = K_MM, Kmmchol = C_MM)
   #' Define uncensored and censored functions
   uncensored <- function(z,d){
     L <- arc_length(model, z,
-                    number_of_interpolants = number_of_interpolants, samples = samples)
+                    number_of_interpolants = number_of_interpolants, samples = samples, K_q = K_q)
     m <- L$m; O <- L$O;
     res <- nakagami_pdf(d,m,O)
     return(res)
   }
   censored <- function(z,d){
     L <- arc_length(model, z,
-                    number_of_interpolants = number_of_interpolants, samples = samples)
+                    number_of_interpolants = number_of_interpolants, samples = samples, K_q = K_q)
     m <- L$m; O <- L$O;
     res <- nakagami_cdf(d,m,O) #Tail probability # cdf is tail
     return(res)

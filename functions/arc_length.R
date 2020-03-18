@@ -4,12 +4,8 @@
 #' 
 #' Output: Empirical first and second moments of squared arc-length.
 
-arc_length <- function(model, z_end, number_of_interpolants = 10, samples = 15){
+arc_length <- function(model, z_end, number_of_interpolants = 10, samples = 15, K_q = NULL){
   zs <- seq_d(z_end, number_of_interpolants = number_of_interpolants) # Function in utils
-  jitter = 1e-5
-  K_MM <- build_kernel_matrix(model,model$v_par$v_x,model$v_par$v_x,equals = TRUE) + jitter*tf$eye(as.integer(model$v_par$num_inducing))
-  C_MM <- tf$cholesky(K_MM)
-  K_q = list(Kmm = K_MM, Kmmchol = C_MM)
   js <- sample_gp_marginal(model, zs[1:number_of_interpolants,], samples = samples, 
                            joint_cov = TRUE, 
                            K_q = K_q) 
