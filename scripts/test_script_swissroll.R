@@ -22,7 +22,7 @@ z <- swiss %*% B$u[,1:d] # PCA latents
 #z <- matrix(rnorm(N*d,0,1), ncol = d) # Initial value of latent points
 #z <- cmdscale(A, k = d) # Makes a swirl (sub-optimal ?)
 #z <- scale(z)
-cut_off <- 1.07 # Seems like a good choice (based on TDA)
+cut_off <- 0.8 # Seems like a good choice (based on TDA) Seems small 0.9
 # Should be more automated
 
 #' R is the distance matrix with the censored values replaced with the cutoff 
@@ -66,7 +66,7 @@ I_batch <- tf$placeholder(tf$int32, shape(NULL,2L))
 z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1))) +
               tf$transpose(tf$gather(tf$transpose(latents$v_par$chol), I_batch), as.integer(c(0,2,1))) * 
                 tf$random_normal(tf$shape(tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1)))))
-# z_batch is (mini-batch) sampled from q(z)
+# z_batch is (mini-batch) sampled from q(z) # Px
 
 dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
 # check that batches match reality

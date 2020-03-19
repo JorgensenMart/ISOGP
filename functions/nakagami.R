@@ -37,7 +37,8 @@ censored_nakagami <- function(model,z_batch, dist_batch, cut_off, number_of_inte
   }
   
   #' Compute for each element
-  out <- tf$map_fn(censored_llh, c(z_batch,dist_batch), dtype = tf$float32) # Holds likelihood value on each batch element
+  out <- tf$map_fn(censored_llh, c(z_batch,dist_batch), dtype = tf$float32,
+                   parallel_iterations = 32L) # Holds likelihood value on each batch element
   return(out)
 }
 
