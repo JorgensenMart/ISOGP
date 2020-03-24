@@ -73,7 +73,7 @@ dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
 
 trainer <- tf$train$AdamOptimizer(learning_rate = 0.01)
 
-driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 15)
+driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 8)
 loss <- tf$reduce_mean(driver) #- compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
 optimizer <- trainer$minimize(-loss)
 
@@ -84,7 +84,7 @@ session$run(tf$global_variables_initializer())
 #' Training
 
 iterations <- 2500
-p <- 100
+p <- 80
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
