@@ -3,15 +3,15 @@
 sapply(paste("functions/",list.files("functions/"), sep = ""), source)
 
 load("data/swissroll.Rda") # Loads swissroll
+
 #' Parameters and more
 N <- 2000 # Number of observations
 m <- 100 # Number of inducing points
 D <- 3 # Ambient dimension / data dimension
 d <- 2 # Latent dimension
 
-
-A <- as.matrix(dist(scale(swissroll)))
 swiss <- scale(swissroll)
+A <- as.matrix(dist(swiss))
 
 B <- svd(t(swiss) %*% swiss)
 W <- B$u[,1:d] # "Jacobian"
@@ -21,7 +21,7 @@ z <- swiss %*% B$u[,1:d] # PCA latents
 #z <- matrix(rnorm(N*d,0,1), ncol = d) # Initial value of latent points
 #z <- cmdscale(A, k = d) # Makes a swirl (sub-optimal ?)
 #z <- scale(z)
-cut_off <- 0.25 # Seems like a good choice (based on TDA) Seems small 0.9
+cut_off <- 0.4 # 
 # Should be more automated
 
 #' R is the distance matrix with the censored values replaced with the cutoff 
