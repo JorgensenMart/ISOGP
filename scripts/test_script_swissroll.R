@@ -74,7 +74,7 @@ trainer <- tf$train$AdamOptimizer(learning_rate = 0.01,
                                   beta1 = 0.5)
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 8)
-loss <- tf$reduce_mean(driver) - compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
+loss <- tf$reduce_mean(driver) #- compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
 optimizer <- trainer$minimize(-loss)
 
 #' Initialize session
