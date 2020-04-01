@@ -51,7 +51,7 @@ nakagami_pdf <- function(x,m,O){
 
 nakagami_cdf <- function(x,m,O){
   #res <- tf$log( 1 - tf$math$igamma(m, (m / O) * x^2) )
-  res <- tf$log( 1 - tf$math$igamma(m, (m / O) * x^2) + 1e-8)
+  res <- tf$log(1 - tf$math$igamma(m, (m / O) * x^2) + 1e-16)
   return(res)
   # Return log-cdf
 }

@@ -70,13 +70,14 @@ z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1
 dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
 # check that batches match reality
 
-trainer <- tf$train$GradientDescentOptimizer(learning_rate = 0.001)
+trainer <- tf$train$AdamOptimizer(learning_rate = 0.001)
+
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 8)
 loss <- tf$reduce_mean(driver) #- compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
 
 grad <- trainer$compute_gradients(-loss)
-
+capped_grap <- tf$clip_by_value(grad, -10,10)
 
 optimizer <- trainer$minimize(-loss)
 

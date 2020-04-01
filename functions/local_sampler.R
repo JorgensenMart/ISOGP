@@ -4,7 +4,7 @@
 
 kNN_for_each <- function(data, k){
   require(FNN)
-  idx <- get.knnx(data, query = data, k = 10)$nn.index
+  idx <- get.knnx(data, query = data, k = k)$nn.index
   return(idx)
 }
 

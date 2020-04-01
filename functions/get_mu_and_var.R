@@ -16,16 +16,16 @@ get_mu_and_var <- function(x_batch,model, K_q = NULL, K_MN = NULL, joint_cov = F
   }
   
   A <- tf$matrix_triangular_solve(C_MM, K_MN, lower = TRUE) #MxN
-  MU <- model$v_par$mu # MxD or MxDxNU
+  MU <- model$v_par$mu - model$mf(model$v_par$v_x) # MxD or MxDxNU
   
   if(MU$get_shape()$ndims == 3){     # IF WISHART MODEL
-    MU_rs <- tf$reshape(MU, as.integer(c(MU$get_shape()$as_list()[1],-1)))
+    MU_rs <- tf$reshape(MU, as.integer(c(MU$get_shape()$as_list()[1],-1))) # Mx(D*NU)
     out_mean <- tf$matmul(A,MU_rs,transpose_a = TRUE)
-    out_mean <- tf$reshape(out_mean, as.integer(c(out_mean$get_shape()$as_list()[1],
-                                                  MU$get_shape()$as_list()[2],
-                                                  model$deg_free)))
+    out_mean <- model$mf(x_batch) + tf$reshape(out_mean, as.integer(c(out_mean$get_shape()$as_list()[1],
+                                                                    MU$get_shape()$as_list()[2],
+                                                                    model$deg_free))) #NxDxNU
   } else{
-    out_mean <- tf$matmul(A,MU,transpose_a = TRUE) #NxD
+    out_mean <- model$mf(x_batch) + tf$matmul(A,MU,transpose_a = TRUE) #NxD
   }
   output_dim <- MU$shape$as_list()[2] # ?? 
   

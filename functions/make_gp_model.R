@@ -7,18 +7,7 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
   model$kern$is.RBF = FALSE; model$kern$is.lin = FALSE;
   model$kern$is.polynomial = FALSE; model$kern$is.ARD = FALSE;
   model$kern$is.white = FALSE;
-  if(missing(mf)){
-    model$mf = function(s){
-      a <- tf$zeros_like(s, dtype = tf$float32)
-      if(a$shape == c(a$shape[0])){
-        a <- tf$reshape(a,shape(-1,1))
-      }
-      return(a)
-    }
-  }
-  else{
-    model$mf = mf
-  }
+
   if(is.WP == TRUE){
     model$is.WP <- TRUE
     if(missing(wis_factor)){wis_factor = out_dim}
@@ -108,6 +97,21 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
         model$v_par$chol <- tf$Variable(matrix(rep(1,num_inducing*out_dim), nrow = out_dim), dtype = tf$float32, constraint = constrain_pos)
       }
     } 
+  }
+  
+  if(missing(mf)){
+    model$mf = function(s){
+      N <- s$get_shape()$as_list()[1]
+      if(model$is.WP == FALSE){
+        a <- tf$zeros(shape(N,out_dim), dtype = tf$float32)
+      } else{
+        a <- tf$zeros(shape(N,out_dim,deg_free), dtype = tf$float32)
+      }
+      return(a)
+    }
+  }
+  else{
+    model$mf = mf
   }
   return(model)
 }

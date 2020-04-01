@@ -13,7 +13,7 @@ compute_kl <- function(model, K_q = NULL){
   
   q_mu <- model$v_par$mu; #MxD or MxDxNU
   #p_mu <- float_32(model$mf(z)) ## ONLY IMPLEMENTED WITH ZERO MEAN FOR NOW
-  
+  p_mu <- model$mf(model$v_par$v_x) #MxD or MxDxNU
   ##
   log_det_p <- tf$reduce_sum(tf$log(tf$square(tf$matrix_diag_part(C_MM)))) # ()
   log_det_q <- tf$log(tf$square(tf$matrix_diag_part(A_sq))) # DxM or DxNUxM
@@ -39,12 +39,12 @@ compute_kl <- function(model, K_q = NULL){
   
   ##
   if(length(q_mu$get_shape()$as_list()) == 3){
-    q_mu_rs <- tf$reshape(q_mu, shape = as.integer(c(q_mu$get_shape()$as_list()[1],q_mu$get_shape()$as_list()[2]*q_mu$get_shape()$as_list()[3])))
+    q_mu_rs <- tf$reshape(p_mu - q_mu, shape = as.integer(c(q_mu$get_shape()$as_list()[1],q_mu$get_shape()$as_list()[2]*q_mu$get_shape()$as_list()[3])))
     alph <- tf$matrix_triangular_solve(C_MM,q_mu_rs, lower = TRUE)
     alph <- tf$reshape(alph, shape = as.integer(c(q_mu$get_shape()$as_list()[1],q_mu$get_shape()$as_list()[2],q_mu$get_shape()$as_list()[3])))
     mahal_term <- tf$reduce_sum(tf$square(alph), axis = as.integer(0))[,,NULL] #DxNUx1
   } else{
-    alph <- tf$matrix_triangular_solve(C_MM,q_mu, lower = TRUE) #MxD
+    alph <- tf$matrix_triangular_solve(C_MM,p_mu - q_mu, lower = TRUE) #MxD
     mahal_term <- tf$reduce_sum(tf$square(alph), axis = as.integer(0))[,NULL] #Dx1
   }
   
