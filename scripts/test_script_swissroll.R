@@ -70,14 +70,13 @@ z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1
 dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
 # check that batches match reality
 
-trainer <- tf$train$AdamOptimizer(learning_rate = 0.001)
-
+trainer <- tf$train$AdamOptimizer(learning_rate = 0.01)
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 8)
 loss <- tf$reduce_mean(driver) #- compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N) # Add K_q for latents
 
-grad <- trainer$compute_gradients(-loss)
-capped_grap <- tf$clip_by_value(grad, -10,10)
+#grad <- trainer$compute_gradients(-loss)
+#capped_grap <- tf$clip_by_value(grad, -10,10)
 
 optimizer <- trainer$minimize(-loss)
 
@@ -87,15 +86,15 @@ session$run(tf$global_variables_initializer())
 
 #' Training
 
-iterations <- 2000
-p <- 80
+iterations <- 3000
+p <- 60
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
-idx <- kNN_for_each(swiss, k = 30)
+#idx <- kNN_for_each(swiss, k = 30)
 for(i in 1:iterations){
-  #I <- sample(N, p, replace = FALSE) - 1 # Index of selected points in sample (tensorflow uses 0-indexing)
-  I <- local_sampler(idx, psu = 5, ssu = 10)
+  I <- sample(N, p, replace = FALSE) - 1 # Index of selected points in sample (tensorflow uses 0-indexing)
+  #I <- local_sampler(idx, psu = 5, ssu = 10)
   batch_dict <- dict(I_batch = batch_to_pairs(I))
   session$run(optimizer, feed_dict = batch_dict)
   #print(session$run(model$v_par$v_x))

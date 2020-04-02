@@ -15,11 +15,11 @@ A <- as.matrix(dist(grid))
 
 B <- svd(t(grid) %*% grid)
 
-#z <- matrix(rnorm(N*d,0,1), ncol = 2)
+z <- matrix(rnorm(N*d,0,1), ncol = 2)
 
 W <- B$u
-z <- grid %*% W
-cut_off <- 1.9 # 
+#z <- grid %*% W
+cut_off <- 1.5 # 
 # Should be more automated
 
 #' R is the distance matrix with the censored values replaced with the cutoff 
@@ -46,7 +46,7 @@ model <- make_gp_model(kern.type = "ARD",
                        mf = prior_mean) # Should be unconstrained Wishart to generate Dxd matrices
 
 model$kern$ARD$ls <- tf$Variable(rep(log(exp(50)-1),d))
-model$kern$ARD$var <- tf$Variable(0.05, constraint = constrain_pos)
+model$kern$ARD$var <- tf$Variable(1, constraint = constrain_pos)
 
 model$v_par$mu <- tf$Variable(aperm(array(rep(W,m), c(D,d,m)), perm = c(3,1,2)), dtype = tf$float32)
 model$v_par$chol <- sqrt(0.1)*model$v_par$chol
@@ -109,13 +109,13 @@ for(i in 1:iterations){
   #I <- local_sampler(idx, psu = 1, ssu = 3) - 1
   batch_dict <- dict(I_batch = batch_to_pairs(I))
   session$run(optimizer, feed_dict = batch_dict)
-  S <- session$run(arc_length(model,z_batch[1,,], number_of_interpolants = 10, samples = 50), feed_dict = batch_dict)
+  #S <- session$run(arc_length(model,z_batch[1,,], number_of_interpolants = 10, samples = 50), feed_dict = batch_dict)
   #print(S$m)
-  print(gamma(S$m + 0.5)/gamma(S$m) * sqrt(S$O/S$m))
-  print(session$run(dist_batch[1], feed_dict = batch_dict))
+  print(session$run(driver, feed_dict = batch_dict))
+  #print(session$run(dist_batch[1], feed_dict = batch_dict))
   #print(session$run(model$v_par$v_x))
   #print(I)
-  if(i %% 3 == 0){
+  if(i %% 10 == 0){
     print(session$run(loss, feed_dict = test_batch))
     plot(session$run(latents$v_par$mu),type = 'o-')
     #S <- session$run(arc_length(model,z_batch[1,,], number_of_interpolants = 10, samples = 50), feed_dict = test_batch)
