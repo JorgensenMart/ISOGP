@@ -66,7 +66,7 @@ latents <- make_gp_model(kern.type = "white",
 latents$kern$white$noise <- tf$constant(1, dtype = tf$float32) # GP hyperparameter is not variable here
 #latents$v_par$v_x <- tf$Variable(z, dtype = tf$float32) # Latents to be marginalized
 latents$v_par$mu <- tf$Variable(z, dtype = tf$float32)
-latents$v_par$chol <- tf$Variable(matrix( rep(1e-3, D*m), ncol = m  ), dtype = tf$float32 )
+latents$v_par$chol <- tf$Variable(matrix( rep(1e-3, D*N), ncol = m  ), dtype = tf$float32 )
 # Make smarter inizialization of z
 
 #model$v_par$v_x <- latents$v_par$mu
@@ -86,7 +86,7 @@ trainer <- tf$train$AdamOptimizer(learning_rate = 0.01, beta1 = 0.9)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 20)
-loss <- tf$reduce_mean(driver)  - compute_kl(model) / as.double(N) #- compute_kl(latents) / as.double(N)# Add K_q for latents
+loss <- tf$reduce_mean(driver)  - compute_kl(model) / as.double(N) - compute_kl(latents) / as.double(N)# Add K_q for latents
 
 #grad <- trainer$compute_gradients(-loss)
 #capped_grap <- tf$clip_by_value(grad, -10,10)
