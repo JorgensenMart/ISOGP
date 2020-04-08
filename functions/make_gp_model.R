@@ -69,12 +69,14 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
   else{
     model$v_par$num_inducing = num_inducing
     N = length(input[,1])
-    I <- sample(1:N, num_inducing, replace = FALSE)
-    
-    # Initializes with random sample
-    model$v_par$v_x = tf$Variable(matrix(input[I,], ncol = in_dim), 
+    if(num_inducing <= N){
+      I <- sample(1:N, num_inducing, replace = FALSE) # Initialize with subset
+      model$v_par$v_x = tf$Variable(matrix(input[I,], ncol = in_dim), 
                                   shape(as.integer(c(num_inducing,in_dim))), 
                                   dtype = tf$float32)
+    } else{
+      model$v_par$v_x = tf$Variable(matrix(rnorm(m*in_dim,0,1), ncol = in_dim), dtype = tf$float32)
+    }
     if(is.WP == TRUE){
       if(model$constrain_deg_free == FALSE){
         model$v_par$mu = tf$Variable(array(rep(0,num_inducing*deg_free*wis_factor),
@@ -98,7 +100,6 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
       }
     } 
   }
-  
   if(missing(mf)){
     model$mf = function(s){
       N <- s$get_shape()$as_list()[1]

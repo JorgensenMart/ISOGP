@@ -15,14 +15,14 @@ censored_nakagami <- function(model,z_batch, dist_batch, cut_off, number_of_inte
   uncensored <- function(z,d){
     L <- arc_length(model, z,
                     number_of_interpolants = number_of_interpolants, samples = samples, K_q = K_q)
-    m <- L$m; O <- L$O;
+    m <- tf$maximum(L$m, 0.51); O <- tf$maximum(L$O,0.001); # Restrict m larger than 0.5
     res <- nakagami_pdf(d,m,O)
     return(res)
   }
   censored <- function(z,d){
     L <- arc_length(model, z,
                     number_of_interpolants = number_of_interpolants, samples = samples, K_q = K_q)
-    m <- L$m; O <- L$O;
+    m <- tf$maximum(L$m, 0.51); O <- tf$maximum(L$O,0.001); # Resctrict m larger than 0.5
     res <- nakagami_cdf(d,m,O) #Tail probability # cdf is tail
     return(res)
   }
@@ -51,7 +51,7 @@ nakagami_pdf <- function(x,m,O){
 
 nakagami_cdf <- function(x,m,O){
   #res <- tf$log( 1 - tf$math$igamma(m, (m / O) * x^2) )
-  res <- tf$log(1 - tf$math$igamma(m, (m / O) * x^2) + 1e-16)
+  res <- tf$log(1 - tf$math$igamma(m, (m / O) * x^2) + 1e-8)
   return(res)
   # Return log-cdf
 }
