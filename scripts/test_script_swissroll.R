@@ -44,7 +44,6 @@ model$kern$ARD$var <- tf$Variable(2, constraint = constrain_pos)
 model$v_par$mu <- tf$Variable(aperm(array(rep(W,m), c(D,d,m)), perm = c(3,1,2)), dtype = tf$float32)
 
 rm(A) # Remove A from memory
-rm(W)
 rm(swissroll)
 
 latents <- make_gp_model(kern.type = "white",
