@@ -72,7 +72,7 @@ reset_trainer <- tf$variables_initializer(trainer$variables())
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 15)
 llh <- tf$reduce_mean(driver)
-KL <- compute_kl(model) / as.double(N) + compute_kl(latents) / as.double(N)
+KL <- compute_kl(model) / as.double(N) #+ compute_kl(latents) / as.double(N)
 
 optimizer_model <- trainer$minimize( - (llh - KL), var_list = list(model$kern$ARD, model$v_par$v_x, model$v_par$mu, model$v_par$chol))
 optimizer_latents <- trainer$minimize( - (llh - KL), var_list = list(latents$v_par$mu, latents$v_par$chol))
