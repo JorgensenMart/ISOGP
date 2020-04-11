@@ -9,8 +9,15 @@ censored_nakagami <- function(model,z_batch, dist_batch, cut_off, number_of_inte
   #' cutoff is the threshold value
   jitter = 1e-4 # This is big jitter, but numerical issue somewhere?
   K_MM <- build_kernel_matrix(model,model$v_par$v_x,model$v_par$v_x,equals = TRUE) + jitter*tf$eye(as.integer(model$v_par$num_inducing))
-  C_MM <- tf$cholesky(K_MM)
+  ## Go to float64 and back
+    K_MM <- tf$cast(K_MM, dtype = tf$float64)
+    C_MM <- tf$cholesky(K_MM)
+    
+    K_MM <- tf$cast(K_MM, dtype = tf$float32)
+    C_MM <- tf$cast(C_MM, dtype = tf$float32)
+  ##
   K_q = list(Kmm = K_MM, Kmmchol = C_MM)
+  
   #' Define uncensored and censored functions
   uncensored <- function(z,d){
     L <- arc_length(model, z,

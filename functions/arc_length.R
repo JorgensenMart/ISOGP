@@ -8,7 +8,7 @@ arc_length <- function(model, z_end, number_of_interpolants = 10L, samples = 15L
   zs <- seq_d(z_end, number_of_interpolants = number_of_interpolants) # Function in utils
   js <- sample_gp_marginal(model, zs[1:number_of_interpolants,], samples = samples, 
                            joint_cov = TRUE, 
-                           K_q = K_q) 
+                           K_q = K_q)
   #' js is SxNxDxd
   delta_z <- z_end[,2] - z_end[,1] # THIS HAS CHANGED
   l_z <- tf$norm(delta_z) # Distance between points

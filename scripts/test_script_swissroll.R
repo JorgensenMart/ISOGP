@@ -84,7 +84,7 @@ session$run(tf$global_variables_initializer())
 #' Training
 
 iterations <- 50000
-p <- 60
+p <- 50
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
