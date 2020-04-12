@@ -3,7 +3,10 @@ compute_kl <- function(model, K_q = NULL){
     jitter = 1e-5
     z <- model$v_par$v_x;
     K_MM <- build_kernel_matrix(model,z,z,equals = TRUE) + jitter*tf$eye(as.integer(model$v_par$num_inducing))
+    K_MM <- tf$cast(K_MM, dtype = tf$float64)
     C_MM <- tf$cholesky(K_MM)
+    C_MM <- tf$cast(C_MM, dtype = tf$float32)
+    K_MM <- tf$cast(K_MM, dtype = tf$float32)
   } else{
     K_MM <- K_q$Kmm
     C_MM <- K_q$Kmmchol
