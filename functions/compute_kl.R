@@ -1,6 +1,6 @@
 compute_kl <- function(model, K_q = NULL){
   if(is.null(K_q)){
-    jitter = 1e-5
+    jitter = 1e-4 # Big jitter, numerical issue
     z <- model$v_par$v_x;
     K_MM <- build_kernel_matrix(model,z,z,equals = TRUE) + jitter*tf$eye(as.integer(model$v_par$num_inducing))
     K_MM <- tf$cast(K_MM, dtype = tf$float64)
