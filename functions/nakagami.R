@@ -8,9 +8,10 @@ censored_nakagami <- function(model,z_batch, dist_batch, cut_off, number_of_inte
   #' d_batch is Nx1
   #' cutoff is the threshold value
   jitter = 1e-4 # This is big jitter, but numerical issue somewhere?
-  K_MM <- build_kernel_matrix(model,model$v_par$v_x,model$v_par$v_x,equals = TRUE) + jitter*tf$eye(as.integer(model$v_par$num_inducing))
+  v_x <- tf$cast(model$v_par$v_x, dtype = tf$float64)
+  K_MM <- build_kernel_matrix(model,v_x,v_x,equals = TRUE) + tf$constant(jitter, dtype = v_x$dtype) * tf$eye(as.integer(model$v_par$num_inducing), dtype = v_x$dtype)
   ## Go to float64 and back
-    K_MM <- tf$cast(K_MM, dtype = tf$float64)
+    #K_MM <- tf$cast(K_MM, dtype = tf$float64)
     C_MM <- tf$cholesky(K_MM)
     
     K_MM <- tf$cast(K_MM, dtype = tf$float32)

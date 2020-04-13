@@ -12,14 +12,14 @@ int_32 <- function(t){
 squared_dist <- function(x,y, equals = FALSE){
   if(equals == TRUE){
     r_norms_x <- tf$reduce_sum(tf$square(x), as.integer(1), keepdims = TRUE)
-    d <- r_norms_x - 2*tf$matmul(x,x,transpose_b = TRUE) + tf$transpose(r_norms_x)
+    d <- r_norms_x - tf$constant(2, dtype = x$dtype)*tf$matmul(x,x,transpose_b = TRUE) + tf$transpose(r_norms_x)
     return(d)
   }
   else{
     r_norms_x <- tf$reduce_sum(tf$square(x), as.integer(1), keepdims = TRUE)
     r_norms_y <- tf$reduce_sum(tf$square(y), as.integer(1), keepdims =TRUE)
     r_norms_y <- tf$transpose(r_norms_y)
-    return(r_norms_x - 2*tf$matmul(x,y,transpose_b = TRUE) + r_norms_y)
+    return(r_norms_x - tf$constant(2, dtype = x$dtype)*tf$matmul(x,y,transpose_b = TRUE) + r_norms_y)
   }
 }
 

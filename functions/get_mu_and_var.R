@@ -1,6 +1,6 @@
 get_mu_and_var <- function(x_batch,model, K_q = NULL, K_MN = NULL, joint_cov = FALSE){
   if(is.null(K_q)){
-    jitter = 1e-5
+    jitter = 1e-4 # Big jitter, numerical issue
     z <- model$v_par$v_x;
     K_MM <- build_kernel_matrix(model,z,z,equals = TRUE) + jitter*tf$eye(as.integer(model$v_par$num_inducing))
     C_MM <- tf$cholesky(K_MM)
