@@ -67,7 +67,7 @@ z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1
 dist_batch <- float_32(tf$gather_nd(R, I_batch)) # N,
 
 
-trainer <- tf$train$AdamOptimizer(learning_rate = 0.01)
+trainer <- tf$train$AdamOptimizer(learning_rate = 0.005)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 15)
