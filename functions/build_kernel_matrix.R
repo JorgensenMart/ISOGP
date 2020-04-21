@@ -40,9 +40,8 @@ build_kernel_matrix <- function(model,z1,z2,equals = FALSE, only_diag = FALSE){
     }
     if(model$kern$is.ARD){
       kern <- model$kern;
-      sig <- tf$cast(kern$ARD$var, dtype = z1$dtype);
-      nu <- tf$cast(softplus(kern$ARD$ls), dtype = z1$dtype);
-      ## NB: This has to be fixed for all kernel types!
+      sig <- kern$ARD$var;
+      nu <- softplus(kern$ARD$ls);
       K <- sig*exp(tf$constant(-0.5, dtype = z1$dtype) * squared_dist(z1/nu,z2/nu, equals = equals))
     }
     if(model$kern$is.lin){

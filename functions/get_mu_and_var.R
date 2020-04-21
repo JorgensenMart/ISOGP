@@ -45,7 +45,7 @@ get_mu_and_var <- function(x_batch,model, K_q = NULL, K_MN = NULL, joint_cov = F
     } else{
       tile_A <- tf$tile(A[NULL,,], as.integer(c(output_dim,1,1)))
       S <- tf$matmul(S,tf$transpose(S,as.integer(c(0,2,1)))) #DxMxM
-      I <- tf$eye(as.integer(model$v_par$num_inducing), dtype = tf$float32)[NULL,,] #1xMxM
+      I <- tf$eye(as.integer(model$v_par$num_inducing), dtype = S$dtype)[NULL,,] #1xMxM
       smink <- S - I
       B <- tf$matmul(smink,tile_A) #DxMxN
       
@@ -59,7 +59,7 @@ get_mu_and_var <- function(x_batch,model, K_q = NULL, K_MN = NULL, joint_cov = F
     if(S$get_shape()$ndims == 4){ #WISHART (non-constrained)
       tile_A <- tf$tile(A[NULL,NULL,,], as.integer(c(output_dim,model$deg_free,1,1))) #DxNUxMxN
       S <- tf$matmul(S,tf$transpose(S,as.integer(c(0,1,3,2))))
-      smink <- S - tf$eye(int_32(model$v_par$num_inducing), dtype = tf$float32)#[output_dim,model$deg_free,,]
+      smink <- S - tf$eye(int_32(model$v_par$num_inducing), dtype = S$dtype)#[output_dim,model$deg_free,,]
       B <- tf$matmul(smink,tile_A)
       
       #d_cov <- tf$reduce_sum(tile_A * B, as.integer(2)) #DxNUxN --- summing over M
@@ -71,7 +71,7 @@ get_mu_and_var <- function(x_batch,model, K_q = NULL, K_MN = NULL, joint_cov = F
     } else{
       tile_A <- tf$tile(A[NULL,,], as.integer(c(output_dim,1,1)))
       S <- tf$matmul(S,tf$transpose(S,as.integer(c(0,2,1)))) #DxMxM
-      I <- tf$eye(as.integer(model$v_par$num_inducing), dtype = tf$float32)[NULL,,] #1xMxM
+      I <- tf$eye(as.integer(model$v_par$num_inducing), dtype = S$dtype)[NULL,,] #1xMxM
       smink <- S - I
       B <- tf$matmul(smink,tile_A) #DxMxN
       

@@ -63,7 +63,7 @@ row_sum_L2 <- function(A){
 }
 
 softplus <- function(x){
-  return(tf$log(1 + tf$exp(x)) + 1e-5)
+  return(tf$log(tf$constant(1, dtype = x$dtype) + tf$exp(x)) + tf$constant(1e-6, dtype = x$dtype))
 }
 
 initialize_L <- function(A, session, iter = 500, B){
@@ -98,7 +98,7 @@ seq_d <- function(z_end, number_of_interpolants){
   s <- seq(0,1, length.out = number_of_interpolants + 1 )
   zerotoone <- matrix(rep( seq(0,1,length.out = number_of_interpolants+1 ), dim ), ncol = dim)
   diff <- z_end[2,] - z_end[1,]
-  zs <- z_end[1,] + tf$multiply(diff, tf$constant(zerotoone, dtype = tf$float32))
+  zs <- z_end[1,] + tf$multiply(diff, tf$constant(zerotoone, dtype = diff$dtype))
   return(zs) 
 }  
 

@@ -8,7 +8,7 @@ sample_gp_marginal <- function(model, x_batch, samples  = 1, K_q = NULL, K_MN = 
                                   mu$get_shape()$as_list()[2],
                                   mu$get_shape()$as_list()[3]),
                             mean = 0,
-                            stddev = 1) #SxNxDxNU
+                            stddev = 1, dtype = mu$dtype) #SxNxDxNU
       out <- mu + tf$sqrt(var)*w 
     }
     else if(model$is.WP == TRUE && model$constrain_deg_free == TRUE){
@@ -16,7 +16,7 @@ sample_gp_marginal <- function(model, x_batch, samples  = 1, K_q = NULL, K_MN = 
       w <- tf$random_normal(shape(samples,
                                   mu$get_shape()$as_list()[1],
                                   mu$get_shape()$as_list()[2],
-                                  model$deg_free),
+                                  model$deg_free, dtype = mu$dtype),
                             mean = 0,
                             stddev = 1) #SxNxDxNU
       mu <- tf$tile(mu[,,NULL], as.integer(c(1,1,model$deg_free)))
@@ -27,7 +27,7 @@ sample_gp_marginal <- function(model, x_batch, samples  = 1, K_q = NULL, K_MN = 
                                   mu$get_shape()$as_list()[1],
                                   mu$get_shape()$as_list()[2]),
                             mean = 0,
-                            stddev = 1) #SxNxD
+                            stddev = 1, dtype = mu$dtype) #SxNxD
       out <- mu + tf$sqrt(var)*w 
     }
   } else{
@@ -41,9 +41,9 @@ sample_gp_marginal <- function(model, x_batch, samples  = 1, K_q = NULL, K_MN = 
                                   mu$get_shape()$as_list()[1],
                                   1),
                             mean = 0,
-                            stddev = 1) #SxDxNUxNx1
-      jitter = 1e-5
-      chol <- tf$cholesky(var + jitter*tf$eye(mu$get_shape()$as_list()[1], dtype = tf$float32)) # DxNUxNxN
+                            stddev = 1, dtype = mu$dtype) #SxDxNUxNx1
+      jitter = tf$constant(1e-5, dtype = mu$dtype)
+      chol <- tf$cholesky(var + jitter*tf$eye(mu$get_shape()$as_list()[1], dtype = mu$dtype)) # DxNUxNxN
       chol <- tf$tile(chol[NULL,,,,], as.integer(c(samples,1,1,1,1))) # SxDxNUxNxN
       out <- tf$matmul(chol,w) # SxDxNUxNx1
       out <- mu + tf$transpose(out, as.integer(c(0,3,1,2,4)))[,,,,1] #SxNxDxNU
@@ -57,9 +57,9 @@ sample_gp_marginal <- function(model, x_batch, samples  = 1, K_q = NULL, K_MN = 
                                   mu$get_shape()$as_list()[1],
                                   1),
                             mean = 0,
-                            stddev = 1) #SxDxNUxNx1
-      jitter = 1e-5
-      chol <- tf$cholesky(var + jitter*tf$eye(mu$get_shape()$as_list()[1], dtype = tf$float32)) # DxNUxNxN
+                            stddev = 1, dtype = var$dtype) #SxDxNUxNx1
+      jitter = tf$constant(1e-5, dtype = mu$dtype)
+      chol <- tf$cholesky(var + jitter*tf$eye(mu$get_shape()$as_list()[1], dtype = mu$dtype)) # DxNUxNxN
       chol <- tf$tile(chol[NULL,,,,], as.integer(c(samples,1,1,1,1))) # SxDxNUxNxN
       out <- tf$matmul(chol,w) # SxDxNUxNx1
       out <- mu + tf$transpose(out, as.integer(c(0,3,1,2,4)))[,,,,1] #SxNxDxNU
@@ -70,9 +70,9 @@ sample_gp_marginal <- function(model, x_batch, samples  = 1, K_q = NULL, K_MN = 
                                   mu$get_shape()$as_list()[1],
                                   1),
                             mean = 0,
-                            stddev = 1) #SxDxNx1
-      jitter = 1e-5
-      chol <- tf$cholesky(var + jitter*tf$eye(mu$get_shape()$as_list()[1], dtype = tf$float32)) # DxNxN
+                            stddev = 1, dtype = mu$dtype) #SxDxNx1
+      jitter = tf$constant(1e-5, dtype = mu$dtype)
+      chol <- tf$cholesky(var + jitter*tf$eye(mu$get_shape()$as_list()[1], dtype = mu$dtype)) # DxNxN
       chol <- tf$tile(chol[NULL,,,], as.integer(c(samples,1,1,1))) # SxDxNxN
       out <- tf$matmul(chol,w) # SxDxNx1
       out <- mu + tf$transpose(out, as.integer(c(0,2,1,3)))[,,,1] #SxNxD

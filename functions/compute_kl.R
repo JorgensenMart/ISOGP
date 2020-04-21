@@ -1,13 +1,13 @@
 compute_kl <- function(model, K_q = NULL){
   if(is.null(K_q)){
     jitter = 1e-4 # Big jitter, numerical issue
-    #z <- model$v_par$v_x;
-    z <- tf$cast(model$v_par$v_x, dtype = tf$float64)
+    z <- model$v_par$v_x;
+    #z <- tf$cast(model$v_par$v_x, dtype = tf$float64)
     K_MM <- build_kernel_matrix(model,z,z,equals = TRUE) + tf$constant(jitter, dtype = z$dtype) * tf$eye(as.integer(model$v_par$num_inducing), dtype = z$dtype)
     #K_MM <- tf$cast(K_MM, dtype = tf$float64)
     C_MM <- tf$cholesky(K_MM)
-    C_MM <- tf$cast(C_MM, dtype = tf$float32)
-    K_MM <- tf$cast(K_MM, dtype = tf$float32)
+    #C_MM <- tf$cast(C_MM, dtype = tf$float32)
+    #K_MM <- tf$cast(K_MM, dtype = tf$float32)
   } else{
     K_MM <- K_q$Kmm
     C_MM <- K_q$Kmmchol
@@ -52,7 +52,7 @@ compute_kl <- function(model, K_q = NULL){
     mahal_term <- tf$reduce_sum(tf$square(alph), axis = as.integer(0))[,NULL] #Dx1
   }
   
-  kl <- 0.5*(log_det_term - model$v_par$num_inducing + trace_term + mahal_term)
+  kl <- tf$constant(0.5, dtype = log_det_term$dtype)*(log_det_term - model$v_par$num_inducing + trace_term + mahal_term)
   kl <- tf$reduce_sum(kl)
   return(kl)
 }

@@ -10,14 +10,14 @@ arc_length <- function(model, z_end, number_of_interpolants = 10L, samples = 15L
                            joint_cov = TRUE, 
                            K_q = K_q)
   #' js is SxNxDxd
-  delta_z <- z_end[,2] - z_end[,1] # THIS HAS CHANGED
+  delta_z <- z_end[,2] - z_end[,1]
   l_z <- tf$norm(delta_z) # Distance between points
   delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(samples,number_of_interpolants,1,1)) ) #SxNxdx1
   
   numeric_integrator <- function(js,zs){
     out <- tf$matmul(js,delta_z) # SxNxDx1 samples interpolants D 1
     out <- tf$norm(out, axis = as.integer(c(-2,-1))) # Euclidean norm
-    out <- 1 / number_of_interpolants * out # Assuming equidistant interpolants
+    out <- tf$constant(1 / number_of_interpolants, dtype = out$dtype) * out # Assuming equidistant interpolants
     out <- tf$reduce_sum(out, axis = as.integer(1)) # Size: Samples
     return(out)
   }
