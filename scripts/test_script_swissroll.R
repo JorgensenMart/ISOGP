@@ -128,6 +128,6 @@ for(i in 1:iterations){
   }
   if(i %% 1000 == 0){ # Save a model every 1000 iterations
     filename <- paste("results/swissroll/swissroll_iteration",i, sep = "")
-    saver$save(session, "swissroll_iter")
+    saver$save(session, filename)
   }
 }
