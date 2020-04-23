@@ -83,6 +83,7 @@ optimizer_latents <- trainer$minimize( - (llh - KL), var_list = list(latents$v_p
 session <- tf$Session()
 session$run(tf$global_variables_initializer())
 
+saver <- tf$train$Saver()
 #' Training
 
 iterations <- 50000
@@ -125,7 +126,8 @@ for(i in 1:iterations){
     cat("Log likelihood:", printllh, "KL:", printkl, "\n")
     cat("ELBO:", printllh - printkl, "\n")
   }
+  if(i %% 1000 == 0){ # Save a model every 1000 iterations
+    filename <- paste("results/swissroll/swissroll_iteration",i, sep = "")
+    saver$save(session, "swissroll_iter")
+  }
 }
-
-saver <- tf$train$Saver()
-saver$save(session, "my_model")
