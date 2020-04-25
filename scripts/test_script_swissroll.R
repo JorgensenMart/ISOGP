@@ -91,7 +91,7 @@ p <- 70
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
-#idx <- kNN_for_each(swiss, k = 30)
+idx <- kNN_for_each(swiss, k = 10)
 Switch = TRUE
 for(i in 1:iterations){
   # Training
@@ -109,11 +109,13 @@ for(i in 1:iterations){
     }
   }
   if(Switch == TRUE){
-    I <- sample(N, p) - 1
+    #I <- sample(N, p) - 1
+    I <- local_sampler(idx, psu = 10, ssu = 5)
     batch_dict <- dict(I_batch = batch_to_pairs(I))
     session$run(optimizer_model, feed_dict = batch_dict)
   } else{
-    I <- sample(N,p) - 1
+    #I <- sample(N,p) - 1
+    I <- local_sampler(idx, psu = 5, ssu = 9)
     batch_dict <- dict(I_batch = batch_to_pairs(I))
     session$run(optimizer_latents, feed_dict = batch_dict)
   }
@@ -127,7 +129,7 @@ for(i in 1:iterations){
     cat("ELBO:", printllh - printkl, "\n")
   }
   if(i %% 1000 == 0){ # Save a model every 1000 iterations
-    filename <- paste("results/swissroll/swissroll_iteration",i, sep = "")
+    filename <- paste("results/swissroll/loc_sampler_swissroll_iteration",i, sep = "")
     saver$save(session, filename)
   }
 }
