@@ -93,9 +93,10 @@ J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J))
 idx <- kNN_for_each(swiss, k = 10)
 Switch = TRUE
+warm_up <- 3000
 for(i in 1:iterations){
   # Training
-  if(i < 3000){
+  if(i < warm_up){
     Switch = TRUE
   } else{
     if( i %% 200 == 0){
@@ -109,13 +110,16 @@ for(i in 1:iterations){
     }
   }
   if(Switch == TRUE){
-    #I <- sample(N, p) - 1
-    I <- local_sampler(idx, psu = 10, ssu = 5)
+    if( i < warm_up){
+      I <- sample(N, p) - 1
+    } else{
+      I <- local_sampler(idx, psu = 10, ssu = 5) - 1
+    }
     batch_dict <- dict(I_batch = batch_to_pairs(I))
     session$run(optimizer_model, feed_dict = batch_dict)
   } else{
     #I <- sample(N,p) - 1
-    I <- local_sampler(idx, psu = 5, ssu = 9)
+    I <- local_sampler(idx, psu = 5, ssu = 9) - 1
     batch_dict <- dict(I_batch = batch_to_pairs(I))
     session$run(optimizer_latents, feed_dict = batch_dict)
   }
