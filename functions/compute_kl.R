@@ -16,7 +16,6 @@ compute_kl <- function(model, K_q = NULL){
   A_sq <- get_chol(model$v_par$chol, model$variational_is_diag); # DxMxM or DxNUxMxM
   
   q_mu <- model$v_par$mu; #MxD or MxDxNU
-  #p_mu <- float_32(model$mf(z)) ## ONLY IMPLEMENTED WITH ZERO MEAN FOR NOW
   p_mu <- model$mf(model$v_par$v_x) #MxD or MxDxNU
   ##
   log_det_p <- tf$reduce_sum(tf$log(tf$square(tf$matrix_diag_part(C_MM)))) # ()
