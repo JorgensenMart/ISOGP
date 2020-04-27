@@ -96,7 +96,7 @@ iterations <- 50000
 p <- 50
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
-test_batch <- dict(I_batch = batch_to_pairs(J))
+test_batch <- dict(I_batch = batch_to_pairs(J), warm_start_model = 1, warm_start_latents_ = 1)
 idx <- kNN_for_each(swiss, k = 10)
 Switch = TRUE
 warm_up <- 3000
