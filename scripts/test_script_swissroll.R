@@ -19,6 +19,7 @@ A <- as.matrix(dist(swiss))
 #z <- swiss %*% B$u[,1:d] # PCA latents
 library(vegan)
 Z <- isomap(A, ndim = d, k = 5) # Initializes with isomap
+z <- Z$points
 
 cut_off <- 0.4 # Should be more automated
 
