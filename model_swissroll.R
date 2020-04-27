@@ -23,12 +23,12 @@ R <- matrix(rep(1,N^2), ncol = N)
 R[which(A < cut_off, arr.ind = TRUE)] <- A[which(A < cut_off, arr.ind = TRUE)]
 R[which(A >= cut_off, arr.ind = TRUE)] <- cut_off * R[which(A >= cut_off, arr.ind = TRUE)]
 
-prior_mean <- function(s){ # This makes prior mean "diagonal"
-  N <- s$get_shape()$as_list()[1]
-  a <- tf$constant(W, dtype = float_type)
-  a <- tf$tile(a[NULL,,], as.integer(c(N,1,1)))
-  return(a)
-}
+#prior_mean <- function(s){ # This makes prior mean "diagonal"
+#  N <- s$get_shape()$as_list()[1]
+#  a <- tf$constant(W, dtype = float_type)
+#  a <- tf$tile(a[NULL,,], as.integer(c(N,1,1)))
+#  return(a)
+#}
 
 model <- make_gp_model(kern.type = "ARD",
                        input = z,
