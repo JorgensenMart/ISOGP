@@ -5,7 +5,7 @@ source("model_swissroll.R")
 session <- tf$Session()
 saver <- tf$train$Saver()
 
-iter <- 22000
+iter <- 8000
 
 load_file <- paste("results/swissroll/loc_sampler_swissroll_iteration",iter, sep = "")  
 saver$restore(session, load_file)
@@ -18,6 +18,6 @@ ZZ <- data.frame(ZZ)
 ZZ <- cbind(ZZ,R)
 out <- ggplot(data = ZZ, aes(x = ZZ[,1], y = ZZ[,2], color = ZZ[,3])) + 
   geom_point() +
-  xlim(-3,3) + ylim(-3,3) + title(paste(iter))
+  xlim(-7,8) + ylim(-4,4) + title(paste(iter))
 
 out

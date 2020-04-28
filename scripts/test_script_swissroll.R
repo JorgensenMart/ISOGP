@@ -80,7 +80,7 @@ reset_trainer <- tf$variables_initializer(trainer$variables())
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 15)
 llh <- tf$reduce_mean(driver)
-KL <- warm_start_model * compute_kl(model) / tf$constant(N, dtype = float_type) + warm_start_latents * compute_kl(latents) / tf$constant(N, dtype = float_type)
+KL <- warm_start_model * compute_kl(model) / tf$constant(N*(N-1)/2, dtype = float_type) + warm_start_latents * compute_kl(latents) / tf$constant(N*(N-1)/2, dtype = float_type)
 
 optimizer_model <- trainer$minimize( - (llh - KL), var_list = list(model$kern$ARD, model$v_par$v_x, model$v_par$mu, model$v_par$chol))
 optimizer_latents <- trainer$minimize( - (llh - KL), var_list = list(latents$v_par$mu, latents$v_par$chol))

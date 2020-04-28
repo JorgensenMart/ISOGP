@@ -12,9 +12,12 @@ float_type = tf$float64
 swiss <- scale(swissroll)
 A <- as.matrix(dist(swiss))
 
-B <- svd(t(swiss) %*% swiss)
-W <- B$u[,1:d] # "Jacobian"
-z <- swiss %*% B$u[,1:d] # PCA latents
+#B <- svd(t(swiss) %*% swiss)
+#W <- B$u[,1:d] # "Jacobian"
+#z <- swiss %*% B$u[,1:d] # PCA latents
+library(vegan)
+Z <- isomap(A, ndim = d, k = 5) # Initializes with isomap
+z <- Z$points
 
 cut_off <- 0.4 # Should be more automated
 
@@ -35,12 +38,13 @@ model <- make_gp_model(kern.type = "ARD",
                        num_inducing = m,
                        in_dim = d, out_dim = D,
                        is.WP = TRUE, deg_free = d,
-                       mf = prior_mean, float_type = float_type) # Should be unconstrained Wishart to generate Dxd matrices
+                       #mf = prior_mean, 
+                       float_type = float_type) # Should be unconstrained Wishart to generate Dxd matrices
 
 model$kern$ARD$ls <- tf$Variable(rep(log(exp(2)-1),d), dtype = float_type)
 model$kern$ARD$var <- tf$Variable(2, constraint = constrain_pos, dtype = float_type)
 
-model$v_par$mu <- tf$Variable(aperm(array(rep(W,m), c(D,d,m)), perm = c(3,1,2)), dtype = float_type)
+#model$v_par$mu <- tf$Variable(aperm(array(rep(W,m), c(D,d,m)), perm = c(3,1,2)), dtype = float_type)
 
 rm(A) # Remove A from memory
 rm(swissroll)
