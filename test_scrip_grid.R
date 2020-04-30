@@ -19,7 +19,7 @@ z <- matrix(rnorm(N*d,0,1), ncol = 2)
 
 W <- B$u
 #z <- grid %*% W
-cut_off <- 1.9 # 
+cut_off <- 1.7 # 
 # Should be more automated
 
 #' R is the distance matrix with the censored values replaced with the cutoff 
@@ -27,23 +27,24 @@ R <- matrix(rep(1,N^2), ncol = N)
 R[which(A < cut_off, arr.ind = TRUE)] <- A[which(A < cut_off, arr.ind = TRUE)]
 R[which(A >= cut_off, arr.ind = TRUE)] <- cut_off * R[which(A >= cut_off, arr.ind = TRUE)]
 
-prior_mean <- function(s){ # This makes prior mean "diagonal"
-  N <- s$get_shape()$as_list()[1]
-  if(model$is.WP == FALSE){
-    a <- tf$ones(shape(N,D), dtype = float_type)
-  } else{
-    a <- tf$constant(W, dtype = float_type)
-    a <- tf$tile(a[NULL,,], as.integer(c(N,1,1)))
-  }
-  return(a)
-}
+#prior_mean <- function(s){ # This makes prior mean "diagonal"
+#  N <- s$get_shape()$as_list()[1]
+#  if(model$is.WP == FALSE){
+#    a <- tf$ones(shape(N,D), dtype = float_type)
+#  } else{
+#    a <- tf$constant(W, dtype = float_type)
+#    a <- tf$tile(a[NULL,,], as.integer(c(N,1,1)))
+#  }
+#  return(a)
+#}
   
 model <- make_gp_model(kern.type = "ARD",
                        input = z,
                        num_inducing = m,
                        in_dim = d, out_dim = D,
                        is.WP = TRUE, deg_free = d,
-                       mf = prior_mean, float_type = float_type) # Should be unconstrained Wishart to generate Dxd matrices
+                       #mf = prior_mean, 
+                       float_type = float_type) # Should be unconstrained Wishart to generate Dxd matrices
 
 model$kern$ARD$ls <- tf$Variable(rep(log(exp(3)-1),d), dtype = float_type)
 model$kern$ARD$var <- tf$Variable(2, constraint = constrain_pos, dtype = float_type)
@@ -87,7 +88,7 @@ trainer <- tf$train$AdamOptimizer(learning_rate = 0.01, beta1 = 0.9)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 20)
-loss <- tf$reduce_mean(driver)  - compute_kl(model) / tf$constant(N, dtype = float_type) #- compute_kl(latents) / as.double(N)# Add K_q for latents
+loss <- tf$reduce_mean(driver)  - compute_kl(model) / tf$constant(N*(N-1)/2, dtype = float_type) #- compute_kl(latents) / as.double(N)# Add K_q for latents
 
 #grad <- trainer$compute_gradients(-loss)
 #capped_grap <- tf$clip_by_value(grad, -10,10)
