@@ -61,7 +61,7 @@ A <- matrix(rep(0,N*N), ncol = N)
 for(i in 1:(N-1)){
   time0 <- Sys.time()
   cat("Iteration:",i,"of",N,"\n")
-  out <- mclapply((i+1):N,find_invariant_distance, idx1 = i, mc.cores = getOptions("mc.cores", 16L))
+  out <- mclapply((i+1):N,find_invariant_distance, idx1 = i, mc.cores = getOption("mc.cores", 16L))
   out <- unlist(out, use.names = FALSE)
   A[i,(i+1):N] = out
   time_end <- Sys.time()
