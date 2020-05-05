@@ -39,9 +39,9 @@ find_invariant_distance <- function(idx1,idx2){
   image1 <- matrix(subtrain$x[idx1,], nrow = 28)
   image2 <- matrix(subtrain$x[idx2,], nrow = 28)
   dist <- Inf
-  out <- mclapply(seq(0,355, by =5),rotateImage, image = image2, mc.cores = getOption("mc.cores", 4L))
+  out <- lapply(seq(0,355, by =5),rotateImage, image = image2)
   disttoimage1 <- function(im2){norm(image1 - im2)}
-  norms <- mclapply(out,disttoimage1, mc.cores = getOption("mc.cores", 4L))
+  norms <- lapply(out,disttoimage1)
   norms <- unlist(norms, use.names = FALSE)
   return(min(norms))
 }
@@ -61,7 +61,7 @@ A <- matrix(rep(0,N*N), ncol = N)
 for(i in 1:(N-1)){
   time0 <- Sys.time()
   cat("Iteration:",i,"of",N,"\n")
-  out <- mclapply((i+1):N,find_invariant_distance, idx1 = i, mc.cores = getOption("mc.cores", 16L))
+  out <- mclapply((i+1):N,find_invariant_distance, idx1 = i, mc.cores = getOption("mc.cores", 32L))
   out <- unlist(out, use.names = FALSE)
   A[i,(i+1):N] = out
   time_end <- Sys.time()
