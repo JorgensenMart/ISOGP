@@ -71,7 +71,7 @@ initialize_L <- function(A, session, iter = 500, B){
   if(missing(B)){
     B <- tf$eye(as.integer(D))
   }
-  loss <- tf$norm(B - tf$matmul(A,A, transpose_b = TRUE), ord = Inf)
+  loss <- tf$norm(tf$add(B, -tf$matmul(A,A, transpose_b = TRUE)), ord = Inf)
   optimizer <- tf$train$AdamOptimizer(0.01)$minimize(loss)
   session$run(tf$global_variables_initializer())
   for(i in 1:500){
