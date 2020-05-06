@@ -8,7 +8,6 @@ D <- 28*28 # Ambient dimension / data dimension
 WIS = 5
 d <- 2 # Latent dimension
 float_type = tf$float32
-
 #################### Not needed ?
 load("data/mnist/dist_object.RDa") # This loads in the pairwise distances (A)
  
@@ -22,8 +21,7 @@ cut_off <- 8.1
 R <- matrix(rep(1,N^2), ncol = N)
 R[which(A < cut_off, arr.ind = TRUE)] <- A[which(A < cut_off, arr.ind = TRUE)]
 R[which(A >= cut_off, arr.ind = TRUE)] <- cut_off * R[which(A >= cut_off, arr.ind = TRUE)]
-library(Matrix)
-R <- 
+
 rm(A) # Remove A from memory
 #prior_mean <- function(s){ # This makes prior mean "diagonal"
 #  N <- s$get_shape()$as_list()[1]
