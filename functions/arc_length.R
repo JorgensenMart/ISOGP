@@ -12,7 +12,7 @@ arc_length <- function(model, z_end, number_of_interpolants = 10L, samples = 15L
   #' js is SxNxDxd
   delta_z <- z_end[,2] - z_end[,1]
   l_z <- tf$norm(delta_z) # Distance between points
-  delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(samples,number_of_interpolants,1,1)) ) #SxNxdx1
+  delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(samples,number_of_interpolants,1,1))) #SxNxdx1
   
   numeric_integrator <- function(js,zs){
     out <- tf$matmul(js,delta_z) # SxNxDx1 samples interpolants D 1
