@@ -6,6 +6,9 @@ source("scripts/model_mnist.R") # This builds the model
 session <- tf$Session()
 session$run(tf$global_variables_initializer())
 
+load("data/mnist/sample_covariance.RDa")
+model$L_scale_matrix <- initialize_L(model$L_scale_matrix, session = session, sample_covariance)
+rm(sample_covariance)
 saver <- tf$train$Saver()
 #' Training
 
