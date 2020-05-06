@@ -1,9 +1,9 @@
-library(TDA)
+library(vegan)
 
 load("data/mnist/dist_object_invariance.RDa")
-diagram <- ripsDiag(A, maxdimension = 0, 
-                    maxscale = 10,
-                    dist = "arbitrary", library = "Dionysus")
-pdf(file = "plots/TDA_mnist_invariance.pdf")
-plot(diagram$diagram)
-dev.off()
+
+Z <- isomap(A, ndim = 2, k = 5)
+
+z <- Z$points
+
+save(z, file = "data/mnist/init_location_invariance.RDa")
