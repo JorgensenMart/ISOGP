@@ -7,7 +7,7 @@ m <- 100 # Number of inducing points
 D <- 28*28 # Ambient dimension / data dimension
 WIS = 10
 d <- 2 # Latent dimension
-float_type = tf$float32
+float_type = tf$float64
 
 #################### Not needed ?
 load("data/mnist/dist_object.RDa") # This loads in the pairwise distances (A)
