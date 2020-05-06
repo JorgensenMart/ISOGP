@@ -9,7 +9,7 @@ arc_length <- function(model, z_end, number_of_interpolants = 10L, samples = 15L
   js <- sample_gp_marginal(model, zs[1:number_of_interpolants,], samples = samples, 
                            joint_cov = TRUE, 
                            K_q = K_q)
-  js <- tf$matmul(tf$tile(model$L_scale_matrix[NULL,NULL,,], c(samples,number_of_interpolants,1,1), js)
+  js <- tf$matmul(tf$tile(model$L_scale_matrix[NULL,NULL,,], c(samples,number_of_interpolants,1,1)), js)
   #' js is SxNxDxd
   delta_z <- z_end[,2] - z_end[,1]
   l_z <- tf$norm(delta_z) # Distance between points
