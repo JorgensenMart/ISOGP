@@ -5,6 +5,7 @@ sapply(paste("functions/",list.files("functions/"), sep = ""), source)
 N <- 5000 # Number of observations
 m <- 100 # Number of inducing points
 D <- 28*28 # Ambient dimension / data dimension
+WIS = 10
 d <- 2 # Latent dimension
 float_type = tf$float32
 
@@ -34,7 +35,7 @@ model <- make_gp_model(kern.type = "ARD",
                        num_inducing = m,
                        in_dim = d, out_dim = D,
                        is.WP = TRUE, deg_free = d,
-                       #mf = prior_mean, 
+                       wis_factor = WIS, 
                        float_type = float_type) # Should be unconstrained Wishart to generate Dxd matrices
 
 model$kern$ARD$ls <- tf$Variable(rep(log(exp(2)-1),d), dtype = float_type)
@@ -71,9 +72,11 @@ warm_start_latents <- tf$placeholder(dtype = float_type, shape = c())
 trainer <- tf$train$AdamOptimizer(learning_rate = 0.005)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
-driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 8, samples = 10)
+driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 8L, samples = 15L)
 llh <- tf$reduce_mean(driver)
 KL <- warm_start_model * compute_kl(model) / tf$constant(N*(N-1)/2, dtype = float_type) + warm_start_latents * compute_kl(latents) / tf$constant(N*(N-1)/2, dtype = float_type)
 
-optimizer_model <- trainer$minimize( - (llh - KL), var_list = list(model$kern$ARD, model$v_par$v_x, model$v_par$mu, model$v_par$chol))
+optimizer_model <- trainer$minimize( - (llh - KL), var_list = list(model$kern$ARD, 
+                                                                   model$v_par$v_x, model$v_par$mu, model$v_par$chol,
+                                                                   model$L_scale_matrix))
 optimizer_latents <- trainer$minimize( - (llh - KL), var_list = list(latents$v_par$mu, latents$v_par$chol))

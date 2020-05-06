@@ -106,7 +106,7 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
       if(model$is.WP == FALSE){
         a <- tf$zeros(shape(N,out_dim), dtype = float_type)
       } else{
-        a <- tf$zeros(shape(N,out_dim,deg_free), dtype = float_type)
+        a <- tf$zeros(shape(N,wis_factor,deg_free), dtype = float_type)
       }
       return(a)
     }
