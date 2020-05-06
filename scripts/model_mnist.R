@@ -71,7 +71,7 @@ warm_start_latents <- tf$placeholder(dtype = float_type, shape = c())
 trainer <- tf$train$AdamOptimizer(learning_rate = 0.005)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
-driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 15, samples = 30)
+driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 8, samples = 4)
 llh <- tf$reduce_mean(driver)
 KL <- warm_start_model * compute_kl(model) / tf$constant(N*(N-1)/2, dtype = float_type) + warm_start_latents * compute_kl(latents) / tf$constant(N*(N-1)/2, dtype = float_type)
 

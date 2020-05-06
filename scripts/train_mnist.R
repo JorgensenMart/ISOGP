@@ -10,7 +10,7 @@ saver <- tf$train$Saver()
 #' Training
 
 iterations <- 50000
-p <- 50
+p <- 40
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J), warm_start_model = 1, warm_start_latents = 1)
@@ -38,7 +38,7 @@ for(i in 1:iterations){
       warm_start_latents_ <- 0
       warm_start_model_ <- min(1, i/2000)
     } else{
-      I <- local_sampler(idx, psu = 10, ssu = 5) - 1
+      I <- local_sampler(idx, psu = 8, ssu = 5) - 1
       warm_start_latents_ <- min(1, (i - warm_up)/20000)
       warm_start_model_ <- min(1, i/2000)
     }
@@ -47,7 +47,7 @@ for(i in 1:iterations){
     session$run(optimizer_model, feed_dict = batch_dict)
   } else{
     #I <- sample(N,p) - 1
-    I <- local_sampler(idx, psu = 5, ssu = 9) - 1
+    I <- local_sampler(idx, psu = 4, ssu = 9) - 1
     warm_start_latents_ <- min(1, (i - warm_up)/20000)
     warm_start_model_ <- min(1, i/2000)
     batch_dict <- dict(I_batch = batch_to_pairs(I), 
