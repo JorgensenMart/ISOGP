@@ -8,14 +8,14 @@ D <- 28*28 # Ambient dimension / data dimension
 d <- 2 # Latent dimension
 float_type = tf$float64
 
-mnist <- subtrain$x
-####################
-A <- "Has to be loaded in"
+#################### Not needed ?
+load("data/mnist/dist_object.RDa") # This loads in the pairwise distances (A)
+
 #####################
 
-z <- "This has to be loaded in"#Z$points
-#######################
-cut_off <- "Find out cutoff"
+load("data/mnist/init_location.RDa") # Loads in the init locations (initialized with isomap)
+####################### z could be scaled ?
+cut_off <- 8.1
 #######################
 #' R is the distance matrix with the censored values replaced with the cutoff 
 R <- matrix(rep(1,N^2), ncol = N)
@@ -65,12 +65,15 @@ z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1
 
 dist_batch <- tf$cast(tf$gather_nd(R, I_batch), dtype = float_type) # N,
 
+warm_start_model <- tf$placeholder(dtype = float_type, shape = c())
+warm_start_latents <- tf$placeholder(dtype = float_type, shape = c())
+
 trainer <- tf$train$AdamOptimizer(learning_rate = 0.005)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 15, samples = 30)
 llh <- tf$reduce_mean(driver)
-KL <- compute_kl(model) / tf$constant(N, dtype = float_type) #+ compute_kl(latents) / tf$constant(N, dtype = float_type)
+KL <- warm_start_model * compute_kl(model) / tf$constant(N*(N-1)/2, dtype = float_type) + warm_start_latents * compute_kl(latents) / tf$constant(N*(N-1)/2, dtype = float_type)
 
 optimizer_model <- trainer$minimize( - (llh - KL), var_list = list(model$kern$ARD, model$v_par$v_x, model$v_par$mu, model$v_par$chol))
 optimizer_latents <- trainer$minimize( - (llh - KL), var_list = list(latents$v_par$mu, latents$v_par$chol))
