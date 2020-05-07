@@ -6,14 +6,17 @@ source("scripts/model_mnist.R") # This builds the model
 session <- tf$Session()
 session$run(tf$global_variables_initializer())
 
-load("data/mnist/sample_covariance.RDa")
-model$L_scale_matrix <- initialize_L(model$L_scale_matrix, session = session, B = tf$constant(sample_covariance, dtype = float_type))
-rm(sample_covariance)
+#load("data/mnist/sample_covariance.RDa")
+model$L_scale_matrix <- initialize_L(model$L_scale_matrix, session = session, B = tf$constant(diag(D), dtype = float_type))
+#rm(sample_covariance)
 saver <- tf$train$Saver()
 #' Training
 
 iterations <- 50000
 p <- 40
+
+# For plotting:
+source("functions/plot_at_iteration.R")
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J), warm_start_model = 1, warm_start_latents = 1)
@@ -67,6 +70,8 @@ for(i in 1:iterations){
     cat("ELBO:", printllh - printkl, "\n")
   }
   if(i %% 1000 == 0){ # Save a model every 1000 iterations
+    new_z <- session$run(latents$v_par$mu)
+    plot_at_iteration(new_z, i, "variant")
     filename <- paste("results/mnist/mnist_iteration",i, sep = "")
     saver$save(session, filename)
   }
