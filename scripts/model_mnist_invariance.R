@@ -14,6 +14,7 @@ load("data/mnist/dist_object_invariance.RDa") # This loads in the pairwise dista
 #####################
 
 load("data/mnist/init_location_invariance.RDa") # Loads in the init locations (initialized with isomap)
+z <- z/max(abs(z))
 ####################### z could be scaled ?
 cut_off <- 7.2
 #######################
