@@ -14,6 +14,7 @@ load("data/mnist/dist_object.RDa") # This loads in the pairwise distances (A)
 #####################
 
 load("data/mnist/init_location.RDa") # Loads in the init locations (initialized with isomap)
+z <- z/max(z) # Scaling here
 ####################### z could be scaled ?
 cut_off <- 8.1
 #######################
