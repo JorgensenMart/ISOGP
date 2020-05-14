@@ -70,10 +70,10 @@ dist_batch <- tf$cast(tf$gather_nd(R, I_batch), dtype = float_type) # N,
 warm_start_model <- tf$placeholder(dtype = float_type, shape = c())
 warm_start_latents <- tf$placeholder(dtype = float_type, shape = c())
 
-trainer <- tf$train$AdamOptimizer(learning_rate = 0.005)
+trainer <- tf$train$AdamOptimizer(learning_rate = 0.001)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
-driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 8L, samples = 15L)
+driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10L, samples = 25L)
 llh <- tf$reduce_mean(driver)
 KL <- warm_start_model * compute_kl(model) / tf$constant(N*(N-1)/2, dtype = float_type) + warm_start_latents * compute_kl(latents) / tf$constant(N*(N-1)/2, dtype = float_type)
 
