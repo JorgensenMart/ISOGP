@@ -8,6 +8,7 @@ session$run(tf$global_variables_initializer())
 
 load("data/mnist/5pca.RDa")
 model$L_scale_matrix <- tf$constant(max(abs(z)) * W,dtype=float_type)
+rm(W)
 saver <- tf$train$Saver()
 #' Training
 
