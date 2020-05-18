@@ -56,7 +56,7 @@ latents <- make_gp_model(kern.type = "white",
 
 latents$kern$white$noise <- tf$constant(1, dtype = float_type) # GP hyperparameter is not variable here
 latents$v_par$mu <- tf$Variable(z, dtype = float_type)
-latents$v_par$chol <- tf$Variable(matrix( rep(1e-3, d*N), ncol = N  ), dtype = float_type, constraint = constrain_pos)
+latents$v_par$chol <- tf$Variable(matrix( rep(1e-2, d*N), ncol = N  ), dtype = float_type, constraint = constrain_pos)
 
 I_batch <- tf$placeholder(tf$int32, shape(NULL,2L))
 
@@ -70,14 +70,14 @@ dist_batch <- tf$cast(tf$gather_nd(R, I_batch), dtype = float_type) # N,
 warm_start_model <- tf$placeholder(dtype = float_type, shape = c())
 warm_start_latents <- tf$placeholder(dtype = float_type, shape = c())
 
-trainer <- tf$train$AdamOptimizer(learning_rate = 0.001)
+trainer <- tf$train$AdamOptimizer(learning_rate = 3e-4)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
-driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 8L, samples = 15L)
+driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 8L, samples = 20L)
 llh <- tf$reduce_mean(driver)
 KL <- warm_start_model * compute_kl(model) / tf$constant(N*(N-1)/2, dtype = float_type) + warm_start_latents * compute_kl(latents) / tf$constant(N*(N-1)/2, dtype = float_type)
 
 optimizer_model <- trainer$minimize( - (llh - KL), var_list = list(model$kern$ARD, 
-                                                                   model$v_par$v_x, model$v_par$mu, model$v_par$chol,
-                                                                   model$L_scale_matrix))
+                                                                   model$v_par$v_x, 
+                                                                   model$v_par$mu, model$v_par$chol))
 optimizer_latents <- trainer$minimize( - (llh - KL), var_list = list(latents$v_par$mu, latents$v_par$chol))

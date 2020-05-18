@@ -75,7 +75,7 @@ dist_batch <- tf$cast(tf$gather_nd(R, I_batch), dtype = float_type) # N,
 warm_start_model <- tf$placeholder(dtype = float_type, shape = c())
 warm_start_latents <- tf$placeholder(dtype = float_type, shape = c())
 
-trainer <- tf$train$AdamOptimizer(learning_rate = 0.001)
+trainer <- tf$train$AdamOptimizer(learning_rate = 3e-4)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 15, samples = 30)
@@ -92,8 +92,8 @@ session$run(tf$global_variables_initializer())
 saver <- tf$train$Saver()
 #' Training
 
-iterations <- 50000
-p <- 50
+iterations <- 100000
+p <- 40
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J), warm_start_model = 1, warm_start_latents = 1)

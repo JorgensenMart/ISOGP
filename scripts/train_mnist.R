@@ -44,7 +44,7 @@ for(i in 1:iterations){
       warm_start_latents_ <- 0
       warm_start_model_ <- min(1, i/2000)
     } else{
-      I <- local_sampler(idx, psu = 8, ssu = 5) - 1
+      I <- local_sampler(idx, psu = 8, ssu = 2) - 1
       warm_start_latents_ <- min(1, (i - warm_up)/20000)
       warm_start_model_ <- min(1, i/2000)
     }
@@ -53,7 +53,7 @@ for(i in 1:iterations){
     session$run(optimizer_model, feed_dict = batch_dict)
   } else{
     #I <- sample(N,p) - 1
-    I <- local_sampler(idx, psu = 4, ssu = 9) - 1
+    I <- local_sampler(idx, psu = 12, ssu = 3) - 1
     warm_start_latents_ <- min(1, (i - warm_up)/20000)
     warm_start_model_ <- min(1, i/2000)
     batch_dict <- dict(I_batch = batch_to_pairs(I), 

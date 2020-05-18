@@ -96,7 +96,7 @@ make_gp_model <- function(kern.type = "RBF", input, output, mf = fun, order = NU
       model$v_par$chol <- tf$Variable(tf$contrib$distributions$fill_triangular_inverse(tf$eye(as.integer(model$v_par$num_inducing), 
                                                                                                        batch_shape = c(int_32(out_dim)), dtype = float_type)))
       if(variational_is_diag == TRUE){
-        model$v_par$chol <- tf$Variable(matrix(rep(1,num_inducing*out_dim), nrow = out_dim), dtype = float_type, constraint = constrain_pos)
+        model$v_par$chol <- tf$Variable(matrix(rep(1e-3,num_inducing*out_dim), nrow = out_dim), dtype = float_type, constraint = constrain_pos)
       }
     } 
   }
