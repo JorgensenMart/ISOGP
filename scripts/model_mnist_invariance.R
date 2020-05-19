@@ -56,7 +56,7 @@ latents <- make_gp_model(kern.type = "white",
 
 latents$kern$white$noise <- tf$constant(1, dtype = float_type) # GP hyperparameter is not variable here
 latents$v_par$mu <- tf$Variable(z, dtype = float_type)
-latents$v_par$chol <- tf$Variable(matrix( rep(1e-3, d*N), ncol = N  ), dtype = float_type, constraint = constrain_pos)
+latents$v_par$chol <- tf$Variable(matrix( rep(1e-6, d*N), ncol = N  ), dtype = float_type, constraint = constrain_pos)
 
 I_batch <- tf$placeholder(tf$int32, shape(NULL,2L))
 

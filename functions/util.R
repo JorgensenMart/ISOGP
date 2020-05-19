@@ -42,7 +42,7 @@ get_chol <- function(vec, is_diagonal = FALSE){
 }
 
 constrain_pos <- function(tensor){
-  out <- tf$clip_by_value(tensor,1e-5,Inf)
+  out <- tf$clip_by_value(tensor,1e-9,Inf)
   return(out)
 }
 

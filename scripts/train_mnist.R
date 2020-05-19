@@ -20,7 +20,7 @@ source("functions/plot_at_iteration.R")
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J), warm_start_model = 1, warm_start_latents = 1)
-idx <- kNN_for_each(swiss, k = 10)
+idx <- kNN_for_each(swiss, k = 6)
 Switch = TRUE
 warm_up <- 3000
 for(i in 1:iterations){
@@ -44,8 +44,8 @@ for(i in 1:iterations){
       warm_start_latents_ <- 0
       warm_start_model_ <- min(1, i/2000)
     } else{
-      I <- local_sampler(idx, psu = 8, ssu = 2) - 1
-      warm_start_latents_ <- min(1, (i - warm_up)/20000)
+      I <- local_sampler(idx, psu = 20, ssu = 2) - 1
+      warm_start_latents_ <- min(1, (i - warm_up)/10000)
       warm_start_model_ <- min(1, i/2000)
     }
     batch_dict <- dict(I_batch = batch_to_pairs(I), 
@@ -53,8 +53,8 @@ for(i in 1:iterations){
     session$run(optimizer_model, feed_dict = batch_dict)
   } else{
     #I <- sample(N,p) - 1
-    I <- local_sampler(idx, psu = 12, ssu = 3) - 1
-    warm_start_latents_ <- min(1, (i - warm_up)/20000)
+    I <- local_sampler(idx, psu = 10, ssu = 4) - 1
+    warm_start_latents_ <- min(1, (i - warm_up)/20000) * (p/N) # This scaling to avoid contraction (?)
     warm_start_model_ <- min(1, i/2000)
     batch_dict <- dict(I_batch = batch_to_pairs(I), 
                        warm_start_latents = warm_start_latents_, warm_start_model = warm_start_model_)
