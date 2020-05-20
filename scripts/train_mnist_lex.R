@@ -1,6 +1,6 @@
 #Train mnist
 
-source("scripts/model_mnist_invariant.R") # This builds the model
+source("scripts/model_mnist_lex.R") # This builds the model
 
 #' Initialize session
 session <- tf$Session()
@@ -71,8 +71,8 @@ for(i in 1:iterations){
   }
   if(i %% 1000 == 0){ # Save a model every 1000 iterations
     new_z <- session$run(latents$v_par$mu)
-    plot_at_iteration(new_z, i, "invariant")
-    filename <- paste("results/mnist/invariant_mnist_iteration",i, sep = "")
+    plot_at_iteration(new_z, i, "lex")
+    filename <- paste("results/mnist/lex_mnist_iteration",i, sep = "")
     saver$save(session, filename)
   }
 }

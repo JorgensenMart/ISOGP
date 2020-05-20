@@ -29,9 +29,9 @@ for(i in 1:(N-1)){
   time_end <- Sys.time()
   print(time_end - time0)
 }
+save(A, file = "data/mnist/dist_object_lex.RDa")
 
-Z <- isomap(A, ndim = 2, k = 2)
+Z <- isomap(A, ndim = 2, k = 5)
 z <- Z$points
 
-save(A, file = "data/mnist/dist_object_lex.RDa")
 save(z, file = "data/mnist/init_location_lex.RDa")

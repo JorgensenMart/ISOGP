@@ -9,12 +9,12 @@ WIS = 5
 d <- 2 # Latent dimension
 float_type = tf$float64
 #################### Not needed ?
-load("data/mnist/dist_object.RDa") # This loads in the pairwise distances (A)
- 
+load("data/mnist/dist_object_lex.RDa") # This loads in the pairwise distances (A)
+
 #####################
 
-load("data/mnist/init_location.RDa") # Loads in the init locations (initialized with isomap)
-z <- (z-colMeans(z))/sqrt(max(var(z))) # Scaling here
+load("data/mnist/init_location_lex.RDa") # Loads in the init locations (initialized with isomap)
+z <- (z-colMeans(z))/sqrt(max(var(z)))
 ####################### z could be scaled ?
 cut_off <- 6
 #######################

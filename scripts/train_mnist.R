@@ -72,7 +72,7 @@ for(i in 1:iterations){
   if(i %% 1000 == 0){ # Save a model every 1000 iterations
     new_z <- session$run(latents$v_par$mu)
     plot_at_iteration(new_z, i, "variant")
-    filename <- paste("results/mnist/mnist_iteration",i, sep = "")
+    filename <- paste("results/mnist/variant_mnist_iteration",i, sep = "")
     saver$save(session, filename)
   }
 }

@@ -16,7 +16,7 @@ load("data/mnist/dist_object_invariance.RDa") # This loads in the pairwise dista
 load("data/mnist/init_location_invariance.RDa") # Loads in the init locations (initialized with isomap)
 z <- (z-colMeans(z))/sqrt(max(var(z)))
 ####################### z could be scaled ?
-cut_off <- 7.2
+cut_off <- 6
 #######################
 #' R is the distance matrix with the censored values replaced with the cutoff 
 R <- matrix(rep(1,N^2), ncol = N)
@@ -70,7 +70,7 @@ dist_batch <- tf$cast(tf$gather_nd(R, I_batch), dtype = float_type) # N,
 warm_start_model <- tf$placeholder(dtype = float_type, shape = c())
 warm_start_latents <- tf$placeholder(dtype = float_type, shape = c())
 
-trainer <- tf$train$AdamOptimizer(learning_rate = 3e-4)
+trainer <- tf$train$AdamOptimizer(learning_rate = 3e-3)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 8L, samples = 20L)
