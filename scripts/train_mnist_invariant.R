@@ -1,6 +1,6 @@
 #Train mnist
 
-source("scripts/model_mnist_invariant.R") # This builds the model
+source("scripts/model_mnist_invariance.R") # This builds the model
 
 #' Initialize session
 session <- tf$Session()
