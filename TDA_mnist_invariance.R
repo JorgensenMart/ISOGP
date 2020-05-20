@@ -2,7 +2,7 @@ library(vegan)
 
 load("data/mnist/dist_object_invariance.RDa")
 
-Z <- isomap(A, ndim = 2, k = 5)
+Z <- isomap(A, ndim = 2, k = 2)
 
 z <- Z$points
 
