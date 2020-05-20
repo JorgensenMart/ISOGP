@@ -9,14 +9,14 @@ x <- train$x[1:5000,]
 N <- 5000
 
 A <- matrix(rep(0,N*N), ncol = N)
-cutoff <- 7
+cutoff <- 14
 
 lex_dist <- function(i,j){
   if(y[i] == y[j]){
-    return(norm(matrix(x[i,], ncol = 28) - matrix(x[j,], ncol = 28)))
+    return(min(2*cutoff,norm(matrix(x[i,], ncol = 28) - matrix(x[j,], ncol = 28))))
   }
   else{
-    return(2*cutoff)
+    return(cutoff)
   }
 }
 
@@ -31,7 +31,10 @@ for(i in 1:(N-1)){
 }
 save(A, file = "data/mnist/dist_object_lex.RDa")
 
-Z <- isomap(A, ndim = 2, k = 5)
-z <- Z$points
+z <- cmdscale(A, k = 2)
 
 save(z, file = "data/mnist/init_location_lex.RDa")
+
+pdf(file = "init_lex.pdf")
+plot(z)
+dev.off()
