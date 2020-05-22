@@ -8,6 +8,12 @@ kNN_for_each <- function(data, k){
   return(idx)
 }
 
+kNN_from_distobject <- function(R, k){
+  idx <- apply(R,2,order)[1:k,]
+  return(t(idx))
+  #Output is Nxk
+}
+
 local_sampler <- function(idx, psu = 50, ssu = 1){
   N <- length(idx[,1]); K <- length(idx[1,])
   psu = min(psu, N)

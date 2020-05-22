@@ -10,13 +10,13 @@ d <- 2 # Latent dimension
 float_type = tf$float64
 #################### Not needed ?
 load("data/mnist/dist_object_lex.RDa") # This loads in the pairwise distances (A)
-
+A <- as.matrix(A)
 #####################
 
 load("data/mnist/init_location_lex.RDa") # Loads in the init locations (initialized with isomap)
 z <- (z-colMeans(z))/sqrt(max(var(z)))
 ####################### z could be scaled ?
-cut_off <- 6
+cut_off <- 7
 #######################
 #' R is the distance matrix with the censored values replaced with the cutoff 
 R <- matrix(rep(1,N^2), ncol = N)

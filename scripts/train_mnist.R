@@ -20,7 +20,7 @@ source("functions/plot_at_iteration.R")
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J), warm_start_model = 1, warm_start_latents = 1)
-idx <- kNN_for_each(swiss, k = 6)
+idx <- kNN_from_distobject(R, k = 5)
 Switch = TRUE
 warm_up <- 3000
 for(i in 1:iterations){
