@@ -29,6 +29,9 @@ for(i in 1:(N-1)){
   time_end <- Sys.time()
   print(time_end - time0)
 }
+
+A = A + t(A)
+
 save(A, file = "data/mnist/dist_object_lex.RDa")
 
 z <- cmdscale(A, k = 2)
