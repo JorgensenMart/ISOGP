@@ -9,7 +9,7 @@ x <- train$x[1:5000,]
 N <- 5000
 
 A <- matrix(rep(0,N*N), ncol = N)
-cutoff <- 8
+cutoff <- 30
 
 lex_dist <- function(i,j){
   if(y[i] == y[j]){
