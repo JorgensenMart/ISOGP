@@ -9,7 +9,7 @@ x <- train$x[1:5000,]
 N <- 5000
 
 A <- matrix(rep(0,N*N), ncol = N)
-cutoff <- 14
+cutoff <- 8
 
 lex_dist <- function(i,j){
   if(y[i] == y[j]){
@@ -30,7 +30,7 @@ for(i in 1:(N-1)){
   print(time_end - time0)
 }
 
-A = A + t(A)
+A <- A + t(A)
 
 save(A, file = "data/mnist/dist_object_lex.RDa")
 
