@@ -75,10 +75,10 @@ dist_batch <- tf$cast(tf$gather_nd(R, I_batch), dtype = float_type) # N,
 warm_start_model <- tf$placeholder(dtype = float_type, shape = c())
 warm_start_latents <- tf$placeholder(dtype = float_type, shape = c())
 
-trainer <- tf$train$AdamOptimizer(learning_rate = 3e-4)
+trainer <- tf$train$AdamOptimizer(learning_rate = 3e-3)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
-driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 15, samples = 30)
+driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 8, samples = 20)
 llh <- tf$reduce_mean(driver)
 KL <- warm_start_model * compute_kl(model) / tf$constant(N*(N-1)/2, dtype = float_type) + warm_start_latents * compute_kl(latents) / tf$constant(N*(N-1)/2, dtype = float_type)
 
@@ -97,7 +97,7 @@ p <- 40
 
 J <- sample(N, p, replace = FALSE) - 1 # Validation batch
 test_batch <- dict(I_batch = batch_to_pairs(J), warm_start_model = 1, warm_start_latents = 1)
-idx <- kNN_for_each(swiss, k = 10)
+idx <- kNN_for_each(swiss, k = 8)
 Switch = TRUE
 warm_up <- 3000
 for(i in 1:iterations){
@@ -121,7 +121,7 @@ for(i in 1:iterations){
       warm_start_latents_ <- 0
       warm_start_model_ <- min(1, i/2000)
     } else{
-      I <- local_sampler(idx, psu = 10, ssu = 5) - 1
+      I <- local_sampler(idx, psu = 20, ssu = 2) - 1
       warm_start_latents_ <- min(1, (i - warm_up)/20000)
       warm_start_model_ <- min(1, i/2000)
     }
@@ -130,7 +130,7 @@ for(i in 1:iterations){
     session$run(optimizer_model, feed_dict = batch_dict)
   } else{
     #I <- sample(N,p) - 1
-    I <- local_sampler(idx, psu = 5, ssu = 9) - 1
+    I <- local_sampler(idx, psu = 10, ssu = 4) - 1
     warm_start_latents_ <- min(1, (i - warm_up)/20000)
     warm_start_model_ <- min(1, i/2000)
     batch_dict <- dict(I_batch = batch_to_pairs(I), 

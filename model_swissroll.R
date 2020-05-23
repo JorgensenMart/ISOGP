@@ -71,12 +71,12 @@ z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1
 dist_batch <- tf$cast(tf$gather_nd(R, I_batch), dtype = float_type) # N,
 
 
-trainer <- tf$train$AdamOptimizer(learning_rate = 0.005)
+trainer <- tf$train$AdamOptimizer(learning_rate = 3e-3)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
-driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 10, samples = 12)
+driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 8, samples = 20)
 llh <- tf$reduce_mean(driver)
-KL <- compute_kl(model) / tf$constant(N, dtype = float_type) #+ compute_kl(latents) / tf$constant(N, dtype = float_type)
+KL <- compute_kl(model) / tf$constant(N, dtype = float_type) + compute_kl(latents) / tf$constant(N, dtype = float_type)
 
 optimizer_model <- trainer$minimize( - (llh - KL), var_list = list(model$kern$ARD, model$v_par$v_x, model$v_par$mu, model$v_par$chol))
 optimizer_latents <- trainer$minimize( - (llh - KL), var_list = list(latents$v_par$mu, latents$v_par$chol))
