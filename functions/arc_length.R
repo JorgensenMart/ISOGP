@@ -5,7 +5,8 @@
 #' Output: Empirical first and second moments of squared arc-length.
 
 arc_length <- function(model, z_end, number_of_interpolants = 10L, samples = 15L, K_q = NULL){
-  zs <- seq_d(z_end, number_of_interpolants = number_of_interpolants) # Function in utils
+  # z_end is dx2 
+  zs <- seq_d(tf$transpose(z_end), number_of_interpolants = number_of_interpolants) # Function in utils
   js <- sample_gp_marginal(model, zs[1:number_of_interpolants,], samples = samples, 
                            joint_cov = TRUE, 
                            K_q = K_q)
@@ -32,4 +33,3 @@ arc_length <- function(model, z_end, number_of_interpolants = 10L, samples = 15L
   L <- list(m = m, O = O)
   return(L)
 }
-

@@ -64,7 +64,6 @@ z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1
   tf$transpose(tf$gather(tf$transpose(latents$v_par$chol), I_batch), as.integer(c(0,2,1))) * 
   tf$random_normal(tf$shape(tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1)))), dtype = float_type)
 
-
 dist_batch <- tf$cast(tf$gather_nd(R, I_batch), dtype = float_type) # N,
 
 warm_start_model <- tf$placeholder(dtype = float_type, shape = c())

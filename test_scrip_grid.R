@@ -15,7 +15,7 @@ A <- as.matrix(dist(grid))
 
 B <- svd(t(grid) %*% grid)
 
-z <- matrix(rnorm(N*d,0,1), ncol = 2)
+z <- matrix(rnorm(N*d,0,1), ncol = d)
 
 W <- B$u
 #z <- grid %*% W
@@ -68,7 +68,7 @@ latents <- make_gp_model(kern.type = "white",
 latents$kern$white$noise <- tf$constant(1, dtype = float_type) # GP hyperparameter is not variable here
 #latents$v_par$v_x <- tf$Variable(z, dtype = tf$float32) # Latents to be marginalized
 latents$v_par$mu <- tf$Variable(z, dtype = float_type)
-latents$v_par$chol <- tf$Variable(matrix( rep(1e-3, D*N), ncol = N  ), dtype = float_type , constraint = constrain_pos)
+latents$v_par$chol <- tf$Variable(matrix( rep(1e-3, d*N), ncol = N  ), dtype = float_type , constraint = constrain_pos)
 # Make smarter inizialization of z
 
 #model$v_par$v_x <- latents$v_par$mu

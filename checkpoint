@@ -1,2 +1,2 @@
-model_checkpoint_path: "swissroll_iter"
-all_model_checkpoint_paths: "swissroll_iter"
+model_checkpoint_path: "my_model"
+all_model_checkpoint_paths: "my_model"
