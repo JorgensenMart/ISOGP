@@ -13,6 +13,11 @@ if(args[1] == "mnist"){
   data_type <- "lex"
   source("scripts/model_mnist_lex.R")
 }
+fix_point_idx <- as.integer(args[2]) #Index of "fixated point"
+
+sample_to_idx <- as.integer(args[3]) #Index of point to path to
+
+iter <- as.integer(args[4]) #Training run to restore
 
 #' Initialize session
 session <- tf$Session()
@@ -22,11 +27,6 @@ saver <- tf$train$Saver()
 load_file <- paste("results/mnist/",data_type,"_mnist_iteration",iter, sep = "")
 saver$restore(session, load_file)
 
-fix_point_idx <- as.integer(args[2]) #Index of "fixated point"
-
-sample_to_idx <- as.integer(args[3]) #Index of point to path to
-
-iter <- as.integer(args[4]) #Training run to restore
 
 rm(R) # Freeing up some space from memory
 # Load in mnist data
