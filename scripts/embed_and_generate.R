@@ -19,11 +19,11 @@ if(args[1] == "mnist"){
 }
 
 
-fix_point_idx <- args[2] #Index of "fixated point"
+fix_point_idx <- as.integer(args[2]) #Index of "fixated point"
 
-sample_to_idx <- args[3] #Index of point to path to
+sample_to_idx <- as.integer(args[3]) #Index of point to path to
 
-iter <- args[4] #Training run to restore
+iter <- as.integer(args[4]) #Training run to restore
 
 rm(R) # Freeing up some space from memory
 # Load in mnist data
