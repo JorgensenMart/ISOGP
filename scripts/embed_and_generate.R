@@ -38,43 +38,56 @@ f <- tf$constant(fix_point, dtype = float_type)
 sample_to <- matrix(train[sample_to_idx,], ncol = 784)
 f_to <- tf$constant(sample_to, dtype = float_type)
 
-#library(FNN)
-#nn_to_fix_point <- knnx.index(train, query = fix_point, k = 2)[2]
-#y <- tf$constant(matrix(train[nn_to_fix_point,], ncol = 784))
-
-nn_to_fix_point <- sample_to_idx; y <- f_to
-
+library(FNN)
+nn_to_fix_point <- knnx.index(train, query = fix_point, k = 4)[2:4]
+y <- tf$constant(matrix(train[nn_to_fix_point,], ncol = 784))
+y <- tf$transpose(tf$expand_dims(y, 2L), c(0L,2L,1L)) # 3 x D x 1
 
 # Embed at fixated point
 
 #A <- tf$Variable(rnorm((D+1)*(D)/2,0,1), dtype = float_type)
-A <- tf$Variable(tf$contrib$distributions$fill_triangular_inverse(diag(D)))
+A <- tf$Variable(tf$contrib$distributions$fill_triangular_inverse(diag(5)))
 B <- tf$contrib$distributions$fill_triangular(A)
 qr <- tf$qr(B)
 Q <- qr$q
 
-optimizer_rotation <- tf$train$AdamOptimizer(learning_rate = 0.001)
+optimizer_rotation <- tf$train$GradientDescentOptimizer(learning_rate = 0.0001)
 
-latent_neighbors <- latents$v_par$mu[c(fix_point_idx,nn_to_fix_point),] # 2xd
+latent_neighbors1 <- latents$v_par$mu[c(fix_point_idx,nn_to_fix_point[1]),] # 2xd
+latent_neighbors2 <- latents$v_par$mu[c(fix_point_idx,nn_to_fix_point[2]),]
+latent_neighbors3 <- latents$v_par$mu[c(fix_point_idx,nn_to_fix_point[3]),]
 
-manifold_path <- sample_gp_marginal(model, x_batch = seq_d(latent_neighbors, 30)[1:30,], joint_cov = TRUE) # 1x30 x WIS x d
-delta_z <- latent_neighbors[2,] - latent_neighbors[1,] # d x 1
-delta_z <- delta_z / tf$constant(30, dtype = delta_z$dtype)
+i = 1
+for(latent_neighbors in list(latent_neighbors1,latent_neighbors2,latent_neighbors3)){
+  manifold_path <- sample_gp_marginal(model, x_batch = seq_d(latent_neighbors, 30)[1:30,], joint_cov = TRUE) # 1x30 x WIS x d
+  delta_z <- latent_neighbors[2,] - latent_neighbors[1,] # d x 1
+  delta_z <- delta_z / tf$constant(30, dtype = delta_z$dtype)
 #z_norm <- tf$norm(delta_z) / tf$constant(30, dtype = delta_z$dtype)
 
 
 
-delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(1,30,1,1))) #1x30xdx1
-manifold_path <- tf$matmul(manifold_path,delta_z)[1,,,] # 30 x WIS x 1
+  delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(1,30,1,1))) #1x30xdx1
+  manifold_path <- tf$matmul(manifold_path,delta_z)[1,,,] # 30 x WIS x 1
 #manifold_path <- manifold_path * z_norm
+  yhat <- tf$matmul(Q,tf$cumsum(manifold_path, axis = as.integer(0))[30,,])
+  #yhat <- tf$matmul(model$L_scale_matrix, tf$cumsum(manifold_path, axis = as.integer(0))[30,,]) # D x 1
+  yhat <- tf$matmul(model$L_scale_matrix,yhat)
+  yhat <- tf$expand_dims(yhat, 0L)
+  if(i == 1){
+    my_yhat <- yhat
+  } else{
+    
+    my_yhat <- tf$concat(c(my_yhat,yhat), axis = 0L)
+  }
+  i = i + 1
+}
 
-yhat <- tf$matmul(model$L_scale_matrix, tf$cumsum(manifold_path, axis = as.integer(0))[30,,]) # D x 1
-yhat <- tf$matmul(Q,yhat)
-rse <- tf$sqrt( tf$reduce_sum( tf$square( y - tf$clip_by_value(f + tf$transpose(yhat),0,1)) ) )
+stack_f <- tf$stack(c(f,f,f))
+rse <- tf$sqrt( tf$reduce_sum( tf$square( y - tf$clip_by_value(stack_f + tf$transpose(my_yhat, as.integer(c(0,2,1))),0,1)) ))/ tf$constant(3, dtype = stack_f$dtype) 
 
 # Works (?) until here
 
-train_rotation <- optimizer_rotation$minimize(rse, var_list = A)
+train_rotation <- optimizer_rotation$minimize(rse, var_list = list(A))
 
 session$run(tf$global_variables_initializer()) # Initialize new variables
 
@@ -86,7 +99,7 @@ show_digit <- function(arr784, col=gray(1:12/12), ...) {
 for(i in 1:500){
   print(session$run(rse))
   session$run(train_rotation)
-  im1 <- session$run(tf$clip_by_value(f + tf$transpose(yhat), 0, 1))
+  im1 <- session$run(tf$clip_by_value(f + tf$transpose(yhat[1,,]), 0, 1))
   if(i %% 10 == 0){
     show_digit(im1)
   }
