@@ -44,12 +44,13 @@ y <- tf$constant(matrix(train[nn_to_fix_point,], ncol = 784))
 
 # Embed at fixated point
 
-A <- tf$Variable(rnorm((D+1)*(D)/2,0,1), dtype = float_type)
+#A <- tf$Variable(rnorm((D+1)*(D)/2,0,1), dtype = float_type)
+A <- tf$Variable(tf$contrib$distributions$fill_triangular_inverse(diag(D)))
 B <- tf$contrib$distributions$fill_triangular(A)
 qr <- tf$qr(B)
 Q <- qr$q
 
-optimizer_rotation <- tf$train$AdamOptimizer(learning_rate = 0.1)
+optimizer_rotation <- tf$train$AdamOptimizer(learning_rate = 0.001)
 
 latent_neighbors <- latents$v_par$mu[c(fix_point_idx,nn_to_fix_point),] # 2xd
 
@@ -66,21 +67,21 @@ manifold_path <- tf$matmul(manifold_path,delta_z)[1,,,] # 30 x WIS x 1
 
 yhat <- tf$matmul(model$L_scale_matrix, tf$cumsum(manifold_path, axis = as.integer(0))[30,,]) # D x 1
 yhat <- tf$matmul(Q,yhat)
-rmse <- tf$sqrt( tf$reduce_mean( tf$square( y - (f + tf$transpose(yhat))) ) )
+rse <- tf$sqrt( tf$reduce_sum( tf$square( y - tf$clip_by_value(f + tf$transpose(yhat),0,1)) ) )
 
 # Works (?) until here
 
-train_rotation <- optimizer_rotation$minimize(rmse, var_list = A)
+train_rotation <- optimizer_rotation$minimize(rse, var_list = A)
 
 session$run(tf$global_variables_initializer()) # Initialize new variables
 
 #Plotting
-show_digit <- function(arr784, col=gray(12:1/12), ...) {
+show_digit <- function(arr784, col=gray(1:12/12), ...) {
   image(matrix(arr784, nrow=28)[,28:1], col=col, ...)
 }
 
 for(i in 1:500){
-  print(session$run(rmse))
+  print(session$run(rse))
   session$run(train_rotation)
   im1 <- session$run(tf$clip_by_value(f + tf$transpose(yhat), 0, 1))
   if(i %% 10 == 0){
