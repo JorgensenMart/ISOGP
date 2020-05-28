@@ -5,10 +5,6 @@ args <- commandArgs(trailingOnly = TRUE)
 if(args[1] == "mnist"){
   data_type <- "variant"
   source("scripts/model_mnist.R")
-  ## Leave this out
-  load("data/mnist/5pca.RDa")
-  model$L_scale_matrix <- tf$constant(sqrt(max(var(z))) * W, dtype = float_type)
-  rm(W)
   
 } else if(args[1] == "invariance"){
   data_type <- "invariant"
@@ -18,6 +14,13 @@ if(args[1] == "mnist"){
   source("scripts/model_mnist_lex.R")
 }
 
+#' Initialize session
+session <- tf$Session()
+session$run(tf$global_variables_initializer())
+# Get parameters
+saver <- tf$train$Saver()
+load_file <- paste("results/mnist/",data_type,"_mnist_iteration",iter, sep = "")
+saver$restore(session, load_file)
 
 fix_point_idx <- as.integer(args[2]) #Index of "fixated point"
 
@@ -61,13 +64,7 @@ rmse <- tf$sqrt( tf$reduce_mean( tf$square( y - (f + tf$transpose(yhat))) ) )
 
 train_rotation <- optimizer_rotation$minimize(rmse, var_list = A)
 
-#' Initialize session
-session <- tf$Session()
-session$run(tf$global_variables_initializer())
-# Get parameters
-saver <- tf$train$Saver()
-load_file <- paste("results/mnist/",data_type,"_mnist_iteration",iter, sep = "")
-saver$restore(session, load_file)
+session$run(tf$global_variables_initializer()) # Initialize new variables
 
 #Plotting
 show_digit <- function(arr784, col=gray(12:1/12), ...) {
