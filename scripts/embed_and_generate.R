@@ -65,9 +65,11 @@ train_rotation <- optimizer_rotation$minimize(rmse, var_list = A)
 session <- tf$Session()
 session$run(tf$global_variables_initializer())
 # Get parameters
-#saver <- tf$train$Saver()
-#load_file <- paste("results/mnist/",data_type,"_mnist_iteration",iter, sep = "") 
-#saver$restore(session, load_file)
+saver <- tf$train$Saver()
+load_file <- paste("results/mnist/",data_type,"_mnist_iteration",iter, sep = "")
+saver$restore(session, load_file)
+
+#Plotting
 show_digit <- function(arr784, col=gray(12:1/12), ...) {
   image(matrix(arr784, nrow=28)[,28:1], col=col, ...)
 }
@@ -76,9 +78,13 @@ for(i in 1:500){
   print(session$run(rmse))
   session$run(train_rotation)
   im1 <- session$run(tf$clip_by_value(f + tf$transpose(yhat), 0, 1))
-  if(i %% 10 == 0){
+  #if(i %% 10 == 0){
     #par(mfrow = 2)
-    show_digit(im1)
-  }
+   # show_digit(im1)
+  #}
 }
+
+pdf(file = "results/mnist/out_digit.pdf")
+show_digit(im1)
+dev.off()
 
