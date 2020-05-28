@@ -38,9 +38,11 @@ f <- tf$constant(fix_point, dtype = float_type)
 sample_to <- matrix(train[sample_to_idx,], ncol = 784)
 f_to <- tf$constant(sample_to, dtype = float_type)
 
-library(FNN)
-nn_to_fix_point <- knnx.index(train, query = fix_point, k = 2)[2]
-y <- tf$constant(matrix(train[nn_to_fix_point,], ncol = 784))
+#library(FNN)
+#nn_to_fix_point <- knnx.index(train, query = fix_point, k = 2)[2]
+#y <- tf$constant(matrix(train[nn_to_fix_point,], ncol = 784))
+
+nn_to_fix_point <- sample_to_idx; y <- f_to
 
 
 # Embed at fixated point
