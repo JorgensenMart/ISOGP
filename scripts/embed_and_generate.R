@@ -112,7 +112,7 @@ trajectory <- tf$matmul(tf$tile(model$L_scale_matrix[NULL,,], as.integer(c(100,1
 trajectory <- tf$matmul(tf$tile(Q[NULL,,], as.integer(c(100,1,1))),trajectory) # 100 x D x 1
 
 for(i in seq(10,100,by=10)){
-  out <- session$run(tf$clip_by_value(trajectory[i,,],0,1))
+  out <- session$run(tf$clip_by_value(f + tf$transpose(trajectory[i,,],0,1)))
   fn <- paste("results/mnist/trace",i,data_type,".pdf",sep = "")
   pdf(file = fn)
   show_digit(out)
