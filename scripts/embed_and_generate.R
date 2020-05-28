@@ -36,6 +36,7 @@ train <- train$x[1:5000,]
 fix_point <- matrix(train[fix_point_idx,], ncol = 784)
 f <- tf$constant(fix_point, dtype = float_type)
 sample_to <- matrix(train[sample_to_idx,], ncol = 784)
+f_to <- tf$constant(sample_to, dtype = float_type)
 
 library(FNN)
 nn_to_fix_point <- knnx.index(train, query = fix_point, k = 2)[2]
@@ -93,3 +94,29 @@ pdf(file = "results/mnist/out_digit.pdf")
 show_digit(im1)
 dev.off()
 
+latent_neighbors <- latents$v_par$mu[c(fix_point_idx,sample_to_idx),]
+trajectory <- sample_gp_marginal(model, seq_d(latent_neighbors,100)[1:100,], joint_cov = TRUE) # 1x100x WIS x d
+
+delta_z <- latent_neighbors[2,] - latent_neighbors[1,] # d x 1
+delta_z <- delta_z / tf$constant(100, dtype = delta_z$dtype)
+#z_norm <- tf$norm(delta_z) / tf$constant(30, dtype = delta_z$dtype)
+
+
+
+delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(1,100,1,1))) #1x100xdx1
+trajectory <- tf$matmul(trajectory,delta_z)[1,,,] # 100 x WIS x 1
+#manifold_path <- manifold_path * z_norm
+
+trajectory <- tf$matmul(tf$tile(model$L_scale_matrix[NULL,,], as.integer(c(100,1,1))), 
+                  tf$cumsum(trajectory, axis = as.integer(0))) # 100 x D x 1
+trajectory <- tf$matmul(tf$tile(Q[NULL,,], as.integer(c(100,1,1))),trajectory) # 100 x D x 1
+
+for(i in seq(10,100,by=10)){
+  out <- session$run(trajectory[i,,])
+  fn <- paste("results/mnist/trace",i,data_type,".pdf",sep = "")
+  pdf(file = fn)
+  show_digit(out)
+  dev.off()  
+}
+
+# Plot 100 images on trajectory
