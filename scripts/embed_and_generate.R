@@ -44,8 +44,9 @@ y <- tf$constant(matrix(train[nn_to_fix_point,], ncol = 784))
 
 # Embed at fixated point
 
-A <- tf$Variable(diag(D), dtype = float_type)
-qr <- tf$qr(A)
+A <- tf$Variable(rnorm((D+1)*(D)/2,0,1), dtype = float_type)
+B <- tf$contrib$distributions$fill_triangular(A)
+qr <- tf$qr(B)
 Q <- qr$q
 
 optimizer_rotation <- tf$train$AdamOptimizer(learning_rate = 0.1)
@@ -54,8 +55,14 @@ latent_neighbors <- latents$v_par$mu[c(fix_point_idx,nn_to_fix_point),] # 2xd
 
 manifold_path <- sample_gp_marginal(model, x_batch = seq_d(latent_neighbors, 30)[1:30,], joint_cov = TRUE) # 1x30 x WIS x d
 delta_z <- latent_neighbors[2,] - latent_neighbors[1,] # d x 1
+z_norm <- tf$norm(delta_z) / tf$constant(30, dtype = delta_z$dtype)
+
+
+
 delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(1,30,1,1))) #1x30xdx1
 manifold_path <- tf$matmul(manifold_path,delta_z)[1,,,] # 30 x WIS x 1
+manifold_path <- manifold_path * z_norm
+
 yhat <- tf$matmul(model$L_scale_matrix, tf$cumsum(manifold_path, axis = as.integer(0))[30,,]) # D x 1
 yhat <- tf$matmul(Q,yhat)
 rmse <- tf$sqrt( tf$reduce_mean( tf$square( y - (f + tf$transpose(yhat))) ) )
@@ -75,10 +82,9 @@ for(i in 1:500){
   print(session$run(rmse))
   session$run(train_rotation)
   im1 <- session$run(tf$clip_by_value(f + tf$transpose(yhat), 0, 1))
-  #if(i %% 10 == 0){
-    #par(mfrow = 2)
-   # show_digit(im1)
-  #}
+  if(i %% 10 == 0){
+    show_digit(im1)
+  }
 }
 
 pdf(file = "results/mnist/out_digit.pdf")
