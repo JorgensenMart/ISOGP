@@ -55,13 +55,14 @@ latent_neighbors <- latents$v_par$mu[c(fix_point_idx,nn_to_fix_point),] # 2xd
 
 manifold_path <- sample_gp_marginal(model, x_batch = seq_d(latent_neighbors, 30)[1:30,], joint_cov = TRUE) # 1x30 x WIS x d
 delta_z <- latent_neighbors[2,] - latent_neighbors[1,] # d x 1
-z_norm <- tf$norm(delta_z) / tf$constant(30, dtype = delta_z$dtype)
+delta_z <- delta_z / tf$constant(30, dtype = delta_z$dtype)
+#z_norm <- tf$norm(delta_z) / tf$constant(30, dtype = delta_z$dtype)
 
 
 
 delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(1,30,1,1))) #1x30xdx1
 manifold_path <- tf$matmul(manifold_path,delta_z)[1,,,] # 30 x WIS x 1
-manifold_path <- manifold_path * z_norm
+#manifold_path <- manifold_path * z_norm
 
 yhat <- tf$matmul(model$L_scale_matrix, tf$cumsum(manifold_path, axis = as.integer(0))[30,,]) # D x 1
 yhat <- tf$matmul(Q,yhat)
