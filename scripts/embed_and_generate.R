@@ -122,9 +122,10 @@ delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(1,100,1,1))) #1x100xdx
 trajectory <- tf$matmul(trajectory,delta_z)[1,,,] # 100 x WIS x 1
 #manifold_path <- manifold_path * z_norm
 
+trajectory <- tf$matmul(tf$tile(Q[NULL,,], as.integer(c(100,1,1))), tf$cumsum(trajectory, axis = as.integer(0)))
 trajectory <- tf$matmul(tf$tile(model$L_scale_matrix[NULL,,], as.integer(c(100,1,1))), 
-                  tf$cumsum(trajectory, axis = as.integer(0))) # 100 x D x 1
-trajectory <- tf$matmul(tf$tile(Q[NULL,,], as.integer(c(100,1,1))),trajectory) # 100 x D x 1
+                  trajectory) # 100 x D x 1
+
 
 for(i in seq(10,100,by=10)){
   out <- session$run(tf$clip_by_value(f + tf$transpose(trajectory[i,,]),0,1))
