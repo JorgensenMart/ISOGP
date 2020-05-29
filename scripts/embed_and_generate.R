@@ -64,7 +64,7 @@ i = 1
 for(latent_neighbors in list(latent_neighbors1,latent_neighbors2,latent_neighbors3)){
   manifold_path <- sample_gp_marginal(model, x_batch = seq_d(latent_neighbors, 30)[1:30,], joint_cov = TRUE) # 1x30 x WIS x d
   delta_z <- latent_neighbors[2,] - latent_neighbors[1,] # d x 1
-  #delta_z <- delta_z / tf$constant(30, dtype = delta_z$dtype)
+  delta_z <- delta_z / tf$constant(30, dtype = delta_z$dtype)
 #z_norm <- tf$norm(delta_z) / tf$constant(30, dtype = delta_z$dtype)
 
 
@@ -112,7 +112,7 @@ latent_neighbors <- latents$v_par$mu[c(fix_point_idx,sample_to_idx),]
 trajectory <- sample_gp_marginal(model, seq_d(latent_neighbors,100)[1:100,], joint_cov = TRUE) # 1x100x WIS x d
 
 delta_z <- latent_neighbors[2,] - latent_neighbors[1,] # d x 1
-#delta_z <- delta_z / tf$constant(100, dtype = delta_z$dtype)
+delta_z <- delta_z / tf$constant(100, dtype = delta_z$dtype)
 #z_norm <- tf$norm(delta_z) / tf$constant(30, dtype = delta_z$dtype)
 
 
