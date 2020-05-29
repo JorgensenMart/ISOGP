@@ -49,7 +49,7 @@ y <- tf$transpose(tf$expand_dims(y, 2L), c(0L,2L,1L)) # 3 x D x 1
 # Embed at fixated point
 
 #A <- tf$Variable(rnorm((D+1)*(D)/2,0,1), dtype = float_type)
-A <- tf$Variable(tf$contrib$distributions$fill_triangular_inverse(diag(5)))
+A <- tf$Variable(tf$contrib$distributions$fill_triangular_inverse(diag(784)))
 B <- tf$contrib$distributions$fill_triangular(A)
 qr <- tf$qr(B)
 Q <- qr$q
@@ -72,9 +72,9 @@ for(latent_neighbors in list(latent_neighbors1,latent_neighbors2,latent_neighbor
   delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(1,30,1,1))) #1x30xdx1
   manifold_path <- tf$matmul(manifold_path,delta_z)[1,,,] # 30 x WIS x 1
 #manifold_path <- manifold_path * z_norm
-  yhat <- tf$matmul(Q,tf$cumsum(manifold_path, axis = as.integer(0))[30,,])
-  #yhat <- tf$matmul(model$L_scale_matrix, tf$cumsum(manifold_path, axis = as.integer(0))[30,,]) # D x 1
-  yhat <- tf$matmul(model$L_scale_matrix,yhat)
+  #yhat <- tf$matmul(Q,tf$cumsum(manifold_path, axis = as.integer(0))[30,,])
+  yhat <- tf$matmul(model$L_scale_matrix, tf$cumsum(manifold_path, axis = as.integer(0))[30,,]) # D x 1
+  yhat <- tf$matmul(Q,yhat)
   yhat <- tf$expand_dims(yhat, 0L)
   if(i == 1){
     my_yhat <- yhat
@@ -108,10 +108,6 @@ for(i in 1:500){
   }
 }
 
-pdf(file = "results/mnist/out_digit.pdf")
-show_digit(im1)
-dev.off()
-
 latent_neighbors <- latents$v_par$mu[c(fix_point_idx,sample_to_idx),]
 trajectory <- sample_gp_marginal(model, seq_d(latent_neighbors,100)[1:100,], joint_cov = TRUE) # 1x100x WIS x d
 
@@ -124,10 +120,9 @@ delta_z <- delta_z / tf$constant(100, dtype = delta_z$dtype)
 delta_z <- tf$tile(delta_z[NULL,NULL,,NULL], as.integer(c(1,100,1,1))) #1x100xdx1
 trajectory <- tf$matmul(trajectory,delta_z)[1,,,] # 100 x WIS x 1
 #manifold_path <- manifold_path * z_norm
-
-trajectory <- tf$matmul(tf$tile(Q[NULL,,], as.integer(c(100,1,1))), tf$cumsum(trajectory, axis = as.integer(0)))
 trajectory <- tf$matmul(tf$tile(model$L_scale_matrix[NULL,,], as.integer(c(100,1,1))), 
-                  trajectory) # 100 x D x 1
+                        tf$cumsum(trajectory, axis = as.integer(0)))
+trajectory <- tf$matmul(tf$tile(Q[NULL,,], as.integer(c(100,1,1))), trajectory) # 100 x D x 1
 
 
 for(i in seq(10,100,by=10)){
