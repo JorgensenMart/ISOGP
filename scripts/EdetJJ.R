@@ -25,6 +25,8 @@ if(args[1] == "mnist"){
   source("scripts/model_mnist_lex.R")
 }
 
+iter <- args[2]
+
 my_frame <- expand.grid(seq(-2.5,2.5,length.out = 48),seq(-2.5,2.5,length.out = 48))
 my_frame$E <- rep(0, 48^2)
 
