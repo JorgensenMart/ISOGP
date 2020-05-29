@@ -27,6 +27,9 @@ saver <- tf$train$Saver()
 load_file <- paste("results/mnist/",data_type,"_mnist_iteration",iter, sep = "")
 saver$restore(session, load_file)
 
+load("data/mnist/5pca.RDa")
+model$L_scale_matrix <- tf$constant(sqrt(max(var(z))) * W, dtype = float_type)
+rm(W)
 
 rm(R) # Freeing up some space from memory
 # Load in mnist data
