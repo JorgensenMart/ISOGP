@@ -55,8 +55,9 @@ K <- length(my_frame[,1])
 my_array <- array(rep(NA, K*4), dim = c(K,2,2))
 for(i in 1:K){
   location <- tf$expand_dims(tf$constant(matrix(my_frame[i,1:2],ncol = 2), dtype = float_type), 0L)
-  meanJtJ <- metric(model,location)
+  meanJtJ <- session$run(metric(model,location))
   my_array[i,,] <- meanJtJ
+  print(i)
 }
 
 library(R.matlab)

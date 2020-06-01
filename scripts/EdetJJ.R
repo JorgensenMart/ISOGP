@@ -27,8 +27,8 @@ if(args[1] == "mnist"){
 
 iter <- args[2]
 
-my_frame <- expand.grid(seq(-2.5,2.5,length.out = 48),seq(-2.5,2.5,length.out = 48))
-my_frame$E <- rep(0, 48^2)
+my_frame <- expand.grid(seq(-3,3,length.out = 48),seq(-3,3,length.out = 80))
+my_frame$E <- rep(0, 80^2)
 
 #' Initialize session
 session <- tf$Session()
@@ -44,7 +44,7 @@ rm(W)
 
 rm(R) # Freeing up some space from memory
 
-for(i in 1:48^2){
+for(i in 1:80^2){
   location <- tf$expand_dims(tf$constant(matrix(my_frame[i,1:2],ncol = 2), dtype = float_type), 0L)
   my_frame$E[i] <- session$run(measure_from_metric(model, location = location))
   print(i)
