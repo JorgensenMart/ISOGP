@@ -46,7 +46,7 @@ rm(R) # Freeing up some space from memory
 
 place_idx <- tf$placeholder(shape = c(2),tf$float64)
 meandetJtJ <- measure_from_metric(model,location = tf$expand_dims(place_idx, 0L))
-session$run(tf$global_variables_initializer())
+#session$run(tf$global_variables_initializer())
 
 for(i in 1:K^2){
   #location <- tf$expand_dims(tf$constant(matrix(my_frame[i,1:2],ncol = 2), dtype = float_type), 0L)
