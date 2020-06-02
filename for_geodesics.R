@@ -66,6 +66,6 @@ for(i in 1:K){
 }
 
 library(R.matlab)
-writeMat("results/mnist/to_mat.R", locations = as.matrix(my_frame), JtJ = my_array)
+writeMat("results/mnist/to_mat.mat", locations = as.matrix(my_frame), JtJ = my_array)
 #fn <- paste("results/mnist/",data_type,"_Edet",".csv", sep = "")
 #write.csv(my_frame, file = fn)
