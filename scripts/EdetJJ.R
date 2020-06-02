@@ -26,7 +26,7 @@ if(args[1] == "mnist"){
 }
 
 iter <- args[2]
-K = 80
+K = 50
 my_frame <- expand.grid(seq(-3,3,length.out = K),seq(-3,3,length.out = K))
 my_frame$E <- rep(0, K^2)
 
@@ -45,7 +45,7 @@ rm(W)
 rm(R) # Freeing up some space from memory
 
 place_idx <- tf$placeholder(shape = c(2),tf$float64)
-meandetJtJ <- measure_from_metric(model,tf$expand_dims(place_idx, 0L))
+meandetJtJ <- measure_from_metric(model,location = tf$expand_dims(tf$constant(place_idx), 0L))
 session$run(tf$global_variables_initializer())
 
 for(i in 1:K^2){
