@@ -1,7 +1,7 @@
 # Write function that takes in location and returns E[det{J^t J}].
 
 measure_from_metric <- function(model,location){
-  J <- sample_gp_marginal(model, x_batch = location, samples = 100, joint_cov = TRUE) # Sx1x out_dim x in_dim
+  J <- sample_gp_marginal(model, x_batch = location, samples = 200, joint_cov = TRUE) # Sx1x out_dim x in_dim
   J <- tf$squeeze(J) #Sx out_dim x in_dim
   L <- tf$tile(model$L_scale_matrix[NULL,,], as.integer(c(100,1,1))) #SxDxout_dim
   J <- tf$matmul(L,J) # S x D x in_dim --- This is Jacobian
@@ -26,7 +26,7 @@ if(args[1] == "mnist"){
 }
 
 iter <- args[2]
-K = 50
+K = 120
 my_frame <- expand.grid(seq(-3,3,length.out = K),seq(-3,3,length.out = K))
 my_frame$E <- rep(0, K^2)
 

@@ -1,7 +1,7 @@
 # Write function that takes in location and returns E[det{J^t J}].
 
 metric <- function(model,location){
-  J <- sample_gp_marginal(model, x_batch = location, samples = 100, joint_cov = TRUE) # Sx1x out_dim x in_dim
+  J <- sample_gp_marginal(model, x_batch = location, samples = 200, joint_cov = TRUE) # Sx1x out_dim x in_dim
   J <- tf$squeeze(J) #Sx out_dim x in_dim
   L <- tf$tile(model$L_scale_matrix[NULL,,], as.integer(c(100,1,1))) #SxDxout_dim
   J <- tf$matmul(L,J) # S x D x in_dim --- This is Jacobian
@@ -29,7 +29,7 @@ if(args[1] == "mnist"){
 
 iter <- args[2]
 
-my_frame <- expand.grid(seq(1,3,by = 0.05),seq(-1,1,by = 0.05))
+my_frame <- expand.grid(seq(1,3,by = 0.02),seq(-1,1,by = 0.02))
 #my_frame$E <- rep(0, 56^2)
 
 #' Initialize session
@@ -56,7 +56,7 @@ my_array <- array(rep(NA, K*4), dim = c(K,2,2))
 
 place_idx <- tf$placeholder(shape = c(2),tf$float64)
 meanJtJ <- metric(model,tf$expand_dims(place_idx, 0L))
-session$run(tf$global_variables_initializer())
+#session$run(tf$global_variables_initializer())
 for(i in 1:K){
   #location <- tf$expand_dims(tf$constant(matrix(my_frame[i,1:2],ncol = 2), dtype = float_type), 0L)
   my_batch <- dict(place_idx = matrix(my_frame[i,1:2],ncol = 2))
