@@ -3,7 +3,7 @@
 measure_from_metric <- function(model,location){
   J <- sample_gp_marginal(model, x_batch = location, samples = 200, joint_cov = TRUE) # Sx1x out_dim x in_dim
   J <- tf$squeeze(J) #Sx out_dim x in_dim
-  L <- tf$tile(model$L_scale_matrix[NULL,,], as.integer(c(100,1,1))) #SxDxout_dim
+  L <- tf$tile(model$L_scale_matrix[NULL,,], as.integer(c(200,1,1))) #SxDxout_dim
   J <- tf$matmul(L,J) # S x D x in_dim --- This is Jacobian
   out <- tf$linalg$det(tf$matmul(J,J, transpose_a = TRUE)) # S
   out <- tf$reduce_mean(out)

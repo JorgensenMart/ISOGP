@@ -3,7 +3,7 @@
 metric <- function(model,location){
   J <- sample_gp_marginal(model, x_batch = location, samples = 200, joint_cov = TRUE) # Sx1x out_dim x in_dim
   J <- tf$squeeze(J) #Sx out_dim x in_dim
-  L <- tf$tile(model$L_scale_matrix[NULL,,], as.integer(c(100,1,1))) #SxDxout_dim
+  L <- tf$tile(model$L_scale_matrix[NULL,,], as.integer(c(200,1,1))) #SxDxout_dim
   J <- tf$matmul(L,J) # S x D x in_dim --- This is Jacobian
   out <- tf$matmul(J,J,transpose_a = TRUE) # S x in_dim x in_dim
   out <- tf$reduce_mean(out, axis = 0L) # in_dim x in_dim
@@ -59,7 +59,7 @@ meanJtJ <- metric(model,tf$expand_dims(place_idx, 0L))
 #session$run(tf$global_variables_initializer())
 for(i in 1:K){
   #location <- tf$expand_dims(tf$constant(matrix(my_frame[i,1:2],ncol = 2), dtype = float_type), 0L)
-  my_batch <- dict(place_idx = matrix(my_frame[i,1:2],ncol = 2))
+  my_batch <- dict(place_idx = as.numeric(my_frame[i,1:2]))
   meanJtJ_out <- session$run(meanJtJ, feed_dict = my_batch)
   my_array[i,,] <- meanJtJ_out
   print(i)
