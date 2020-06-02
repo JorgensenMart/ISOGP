@@ -53,9 +53,12 @@ rm(R) # Freeing up some space from memory
 #}
 K <- length(my_frame[,1])
 my_array <- array(rep(NA, K*4), dim = c(K,2,2))
+
+place_idx <- tf$placeholder(shape = c(1,2),tf$float64)
 for(i in 1:K){
-  location <- tf$expand_dims(tf$constant(matrix(my_frame[i,1:2],ncol = 2), dtype = float_type), 0L)
-  meanJtJ <- session$run(metric(model,location))
+  #location <- tf$expand_dims(tf$constant(matrix(my_frame[i,1:2],ncol = 2), dtype = float_type), 0L)
+  my_batch <- dict(place_idx <- matrix(my_frame[i,1:2],ncol = 2))
+  meanJtJ <- session$run(metric(model,place_idx), feed_dict = my_batch)
   my_array[i,,] <- meanJtJ
   print(i)
 }
