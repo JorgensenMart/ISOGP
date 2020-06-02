@@ -54,7 +54,7 @@ rm(R) # Freeing up some space from memory
 K <- length(my_frame[,1])
 my_array <- array(rep(NA, K*4), dim = c(K,2,2))
 
-place_idx <- tf$placeholder(shape = c(1,2),tf$float64)
+place_idx <- tf$placeholder(shape = c(2),tf$float64)
 meanJtJ <- metric(model,tf$expand_dims(place_idx, 0L))
 session$run(tf$global_variables_initializer())
 for(i in 1:K){
