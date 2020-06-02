@@ -29,7 +29,7 @@ if(args[1] == "mnist"){
 
 iter <- args[2]
 
-my_frame <- expand.grid(seq(0,3.2,by = 0.05),seq(-1,2,by = 0.05))
+my_frame <- expand.grid(seq(1,3,by = 0.05),seq(-1,1,by = 0.05))
 #my_frame$E <- rep(0, 56^2)
 
 #' Initialize session
