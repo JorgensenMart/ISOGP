@@ -26,8 +26,8 @@ if(args[1] == "mnist"){
 }
 
 iter <- args[2]
-K = 55
-my_frame <- expand.grid(seq(-2.5,3,length.out = K),seq(-2.4,2.4,length.out = K))
+K = 80
+my_frame <- expand.grid(seq(-3,3,length.out = K),seq(-3,3,length.out = K))
 my_frame$E <- rep(0, K^2)
 
 #' Initialize session
@@ -44,9 +44,15 @@ rm(W)
 
 rm(R) # Freeing up some space from memory
 
+place_idx <- tf$placeholder(shape = c(2),tf$float64)
+meandetJtJ <- measure_from_metric(model,tf$expand_dims(place_idx, 0L))
+session$run(tf$global_variables_initializer())
+
 for(i in 1:K^2){
-  location <- tf$expand_dims(tf$constant(matrix(my_frame[i,1:2],ncol = 2), dtype = float_type), 0L)
-  my_frame$E[i] <- session$run(measure_from_metric(model, location = location))
+  #location <- tf$expand_dims(tf$constant(matrix(my_frame[i,1:2],ncol = 2), dtype = float_type), 0L)
+  my_batch <- dict(place_idx = matrix(my_frame[i,1:2],ncol = 2))
+  meanJtJ_out <- session$run(meandetJtJ, feed_dict = my_batch)
+  my_frame$E[i] <- meanJtJ_out
   print(i)
 }
 
