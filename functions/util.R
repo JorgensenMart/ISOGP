@@ -132,6 +132,5 @@ batch_to_pairs <- function(I){
   out <- out[out$Var1 < out$Var2,]
   return( as.matrix(out) )
 }
-
 # for dist: gather nd
 # for latents: gather with Iout and gives Nxdx2 then transpose to Nx2xd
