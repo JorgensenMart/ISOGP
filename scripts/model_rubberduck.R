@@ -3,7 +3,11 @@ sapply(paste("functions/",list.files("functions/"), sep = ""), source)
 
 #' Parameters and more
 N <- 72 # Number of observations
+<<<<<<< HEAD
 m <- 72 # Number of inducing points
+=======
+m <- 100 # Number of inducing points
+>>>>>>> a8dcb0860ef289a5a960f3f652ae9a6f5936a1c9
 D <- 16384 # Ambient dimension / data dimension
 WIS = 5
 d <- 2 # Latent dimension
