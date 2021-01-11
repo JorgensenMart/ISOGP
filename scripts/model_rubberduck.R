@@ -2,9 +2,9 @@
 sapply(paste("functions/",list.files("functions/"), sep = ""), source)
 
 #' Parameters and more
-N <- 5000 # Number of observations
-m <- 100 # Number of inducing points
-D <- 28*28 # Ambient dimension / data dimension
+N <- 72 # Number of observations
+m <- 72 # Number of inducing points
+D <- 16384 # Ambient dimension / data dimension
 WIS = 5
 d <- 2 # Latent dimension
 float_type = tf$float64
@@ -58,6 +58,8 @@ latents$kern$white$noise <- tf$constant(1, dtype = float_type) # GP hyperparamet
 latents$v_par$mu <- tf$Variable(z, dtype = float_type)
 latents$v_par$chol <- tf$Variable(matrix( rep(1e-6, d*N), ncol = N  ), dtype = float_type, constraint = constrain_pos)
 
+model$v_par$v_x <- latents$v_par$mu # We dont have SVGP here
+
 I_batch <- tf$placeholder(tf$int32, shape(NULL,2L))
 
 z_batch <- tf$transpose(tf$gather(latents$v_par$mu, I_batch), as.integer(c(0,2,1))) +
@@ -69,7 +71,7 @@ dist_batch <- tf$cast(tf$gather_nd(R, I_batch), dtype = float_type) # N,
 warm_start_model <- tf$placeholder(dtype = float_type, shape = c())
 warm_start_latents <- tf$placeholder(dtype = float_type, shape = c())
 
-trainer <- tf$train$AdamOptimizer(learning_rate = 3e-3)
+trainer <- tf$train$AdamOptimizer(learning_rate = 3e-4)
 reset_trainer <- tf$variables_initializer(trainer$variables())
 
 driver <- censored_nakagami(model, z_batch, dist_batch, cut_off, number_of_interpolants = 8L, samples = 20L)
