@@ -2,9 +2,9 @@
 sapply(paste("functions/",list.files("functions/"), sep = ""), source)
 
 #' Parameters and more
-N <- 5000 # Number of observations
+N <- 72 # Number of observations
 m <- 100 # Number of inducing points
-D <- 28*28 # Ambient dimension / data dimension
+D <- 16384 # Ambient dimension / data dimension
 WIS = 5
 d <- 2 # Latent dimension
 float_type = tf$float64
